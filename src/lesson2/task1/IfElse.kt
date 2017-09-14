@@ -33,19 +33,18 @@ fun minBiRoot(a: Double, b: Double, c: Double): Double {
  * Мой возраст. Для заданного 0 < n < 200, рассматриваемого как возраст человека,
  * вернуть строку вида: «21 год», «32 года», «12 лет».
  */
-fun ageDescription(age: Int): String
-{
+fun ageDescription(age: Int): String {
     var str: String = age.toString()
-    if ( (age / 10) % 10 == 1) {
-        str += " лет"
+    val last = age % 10
+    when
+    {
+        (age / 10) % 10 == 1 -> str += " лет"
+        last >= 5 -> str += " лет"
+        last >= 2 -> str += " года"
+        last == 1 -> str += " год"
+        last == 0 -> str += " лет"
     }
-    else {
-        var last = age % 10
-        if (last >= 5) str += " лет"
-        else if (last >= 2) str += " года"
-        else if (last == 1) str += " год"
-        else str += " лет"
-    }
+    return str
 }
 
 /**
@@ -58,19 +57,20 @@ fun ageDescription(age: Int): String
 fun timeForHalfWay(t1: Double, v1: Double,
                    t2: Double, v2: Double,
                    t3: Double, v3: Double): Double {
-    var way1 = t1 * v1
-    var way2 = t2 * v2
-    var way3 = t3 * v3
+    val way1 = t1 * v1
+    val way2 = t2 * v2
+    val way3 = t3 * v3
 
-    var way = way1 + way2 + way3 / 2.0
+    val way = way1 + way2 + way3 / 2.0
 
-    var time: Double
+    val time: Double
 
-    if (way > way1 + way2)
-        time = t1 + t2 + (way - way1 - way2) / v3
-    else if (way > way1)
-        time = t1 + (way - way1) / v2
-    else time = way / v1
+    when
+    {
+        way > way1 + way2 -> time = t1 + t2 + (way - way1 - way2) / v3
+        way > way1        -> time = t1 + (way - way1) / v2
+        else              -> time = way / v1
+    }
 
     return time
 }
@@ -130,11 +130,11 @@ fun triangleKind(a: Double, b: Double, c: Double): Int
     // a*a = b*b + c*c - 2*b*c*Cos(a)
     // Cos(a) = (a*a - b*b - c*c) / (2*b*c)
 
-    var angA = arccos(a*a - b*b - c*c) / (2*b*c)
+    val angA = arccos(a*a - b*b - c*c) / (2*b*c)
     swap(a, b)
-    var angB = arccos(a*a - b*b - c*c) / (2*b*c)
+    val angB = arccos(a*a - b*b - c*c) / (2*b*c)
     swap(a, c)
-    var angC = arccos(a*a - b*b - c*c) / (2*b*c)
+    val angC = arccos(a*a - b*b - c*c) / (2*b*c)
 
     if (angA + angB + angC != 180) return -1
     if (angA > 90 || angB > 90 || angC > 90) return 2
@@ -157,8 +157,7 @@ fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int
         swap(b, d)
         swap(a, c)
     }
-    var res: Int
-    res = min(a, c) - d
+    val res = min(a, c) - d
     if (res <= 0) return -1
     else return res
 }
