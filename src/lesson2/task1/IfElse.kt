@@ -8,6 +8,7 @@ import lesson1.task1.discriminant
  *
  * Найти наименьший корень биквадратного уравнения ax^4 + bx^2 + c = 0
  */
+
 fun minBiRoot(a: Double, b: Double, c: Double): Double {
     // 1: в главной ветке if выполняется НЕСКОЛЬКО операторов
     if (a == 0.0) {
@@ -34,17 +35,15 @@ fun minBiRoot(a: Double, b: Double, c: Double): Double {
  * вернуть строку вида: «21 год», «32 года», «12 лет».
  */
 fun ageDescription(age: Int): String {
-    var str: String = age.toString()
     val last = age % 10
-    when
+    return when
     {
-        (age / 10) % 10 == 1 -> str += " лет"
-        last >= 5 -> str += " лет"
-        last >= 2 -> str += " года"
-        last == 1 -> str += " год"
-        last == 0 -> str += " лет"
+        (age / 10) % 10 == 1 ->  "$age лет"
+        last >= 5 -> "$age лет"
+        last >= 2 -> "$age года"
+        last == 1 -> "$age год"
+        else      -> "$age лет"
     }
-    return str
 }
 
 /**
@@ -59,20 +58,15 @@ fun timeForHalfWay(t1: Double, v1: Double,
                    t3: Double, v3: Double): Double {
     val way1 = t1 * v1
     val way2 = t2 * v2
-    val way3 = t3 * v3
 
-    val way = way1 + way2 + way3 / 2.0
+    val way = (way1 + way2 + t3 * v3) / 2.0
 
-    val time: Double
-
-    when
+    return when
     {
-        way > way1 + way2 -> time = t1 + t2 + (way - way1 - way2) / v3
-        way > way1        -> time = t1 + (way - way1) / v2
-        else              -> time = way / v1
+        way > way1 + way2 -> t1 + t2 + (way - way1 - way2) / v3
+        way > way1        -> t1 + (way - way1) / v2
+        else              -> way / v1
     }
-
-    return time
 }
 
 /**
@@ -90,7 +84,7 @@ fun whichRookThreatens(kingX: Int, kingY: Int,
 {
     var res = 0
     if (kingX == rookX1 || kingY == rookY1) res += 1
-    if (kingX == rookX2 || kingY == rookY2) res += 1
+    if (kingX == rookX2 || kingY == rookY2) res += 2
 
     return res
 }
@@ -111,10 +105,13 @@ fun rookOrBishopThreatens(kingX: Int, kingY: Int,
 {
     var res = 0
     if (kingX == rookX || kingY == rookY) res += 1
-    if (ads(kingX - bishopX) == ads(kingY - bishopY)) res += 2
+    if (Math.abs(kingX - bishopX) == Math.abs(kingY - bishopY)) res += 2
     return res
 }
 
+fun main(args: Array<String>) {
+    triangleKind(3.0, 7.5, 4.0)
+}
 
 /**
  * Простая
@@ -124,22 +121,28 @@ fun rookOrBishopThreatens(kingX: Int, kingY: Int,
  * прямоугольным (вернуть 1) или тупоугольным (вернуть 2).
  * Если такой треугольник не существует, вернуть -1.
  */
-fun triangleKind(a: Double, b: Double, c: Double): Int
-{
-    if (a <= 0 || b <= 0 || c <= 0) return -1
-    // a*a = b*b + c*c - 2*b*c*Cos(a)
-    // Cos(a) = (a*a - b*b - c*c) / (2*b*c)
+fun triangleKind(a: Double, b: Double, c: Double): Int {
+    if (a <= 0.0 || b <= 0.0 || c <= 0.0) return -1
 
-    val angA = arccos(a*a - b*b - c*c) / (2*b*c)
-    swap(a, b)
-    val angB = arccos(a*a - b*b - c*c) / (2*b*c)
-    swap(a, c)
-    val angC = arccos(a*a - b*b - c*c) / (2*b*c)
+    val C = Math.max(Math.max(a, b), c)
+    val A = Math.min(Math.min(a, b), Math.min(a, c))
+    val B = Math.max(Math.max(Math.min(a,b), Math.min(a, c)), Math.min(c, b))
 
-    if (angA + angB + angC != 180) return -1
-    if (angA > 90 || angB > 90 || angC > 90) return 2
-    if (angA == 90 || angB == 90 || angC == 90) return 1
-    return 0
+    println("a $A")
+    println("b $B")
+    println("c: $C")
+
+    val left = A * A + B * B
+    val right = C * C
+
+    println("left $left")
+    println("right $right\n")
+   return when {
+       A + B <= C       -> -1
+       left > right     -> 0
+       left == right    -> 1
+       else             -> 2
+   }
 }
 
 /**
@@ -150,15 +153,22 @@ fun triangleKind(a: Double, b: Double, c: Double): Int
  * Найти длину пересечения отрезков AB и CD.
  * Если пересечения нет, вернуть -1.
  */
-fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int
-{
-    if (d > b)
-    {
-        swap(b, d)
-        swap(a, c)
+fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int {
+
+    var B = b
+    var C = c
+    var D = d
+
+    // a is first
+    if (a > c) {
+        B = d
+        C = a
+        D = b
     }
-    val res = min(a, c) - d
-    if (res <= 0) return -1
-    else return res
+    return when {
+        B < C   -> -1
+        B > D   -> D - C
+        else    -> B - C
+    }
 }
 

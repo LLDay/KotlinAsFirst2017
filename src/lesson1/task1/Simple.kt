@@ -62,7 +62,7 @@ fun seconds(hours: Int, minutes: Int, seconds: Int): Int =
  * 1 сажень = 3 аршина = 48 вершков, 1 вершок = 4.445 см.
  */
 fun lengthInMeters(sagenes: Int, arshins: Int, vershoks: Int): Double =
-        4.445 * (sagenes * 48 + arshines * 16 + vershoks)
+        4.445 * (sagenes * 48.0 + arshins * 16.0 + vershoks) / 100.0
 
 
 
@@ -73,7 +73,7 @@ fun lengthInMeters(sagenes: Int, arshins: Int, vershoks: Int): Double =
  * Вывести значение того же угла в радианах (например, 0.63256).
  */
 fun angleInRadian(grad: Int, min: Int, sec: Int): Double =
-        PI / 180 * (grad + min * 1.0/60 + sec * 1.0 / 3600)
+        PI / 180.0 * (grad + min * 1.0 / 60.0 + sec * 1.0 / 3600.0)
 
 /**
  * Тривиальная
@@ -83,10 +83,10 @@ fun angleInRadian(grad: Int, min: Int, sec: Int): Double =
  */
 fun trackLength(x1: Double, y1: Double, x2: Double, y2: Double): Double
 {
-    var x = x2 - x1
-    var y = y2 - y1
+    val x = x2 - x1
+    val y = y2 - y1
 
-    return sqrt(pow(x,2) + pow(y, 2))
+    return sqrt(pow(x, 2.0) + pow(y, 2.0))
 }
 
 /**
@@ -105,7 +105,7 @@ fun thirdDigit(number: Int): Int = (number / 100) % 10
  * Определите время поезда в пути в минутах (в данном случае 216).
  */
 fun travelMinutes(hoursDepart: Int, minutesDepart: Int, hoursArrive: Int, minutesArrive: Int): Int
-        = (hoursArrive - hoursDepart) * 60 + minetesArrive - minutesDepart
+        = (hoursArrive - hoursDepart) * 60 + minutesArrive - minutesDepart
 
 /**
  * Простая
@@ -116,11 +116,9 @@ fun travelMinutes(hoursDepart: Int, minutesDepart: Int, hoursArrive: Int, minute
  */
 fun accountInThreeYears(initial: Int, percent: Int): Double
 {
-    var res: Double
-    res = initial
-    res += res * 0.1
-    res += res * 0.1
-    res += res * 0.1
+    var res = initial.toDouble()
+    res *= pow((1.0 + percent / 100.0), 3.0)
+    return res
 }
 
 /**
@@ -131,8 +129,8 @@ fun accountInThreeYears(initial: Int, percent: Int): Double
  */
 fun numberRevert(number: Int): Int
 {
-    var first = number % 10
-    var sec = (number / 10) % 10
-    var thr = number / 100
+    val first = number % 10
+    val sec = (number / 10) % 10
+    val thr = number / 100
     return first * 100 + sec * 10 + thr
 }
