@@ -1,4 +1,5 @@
 @file:Suppress("UNUSED_PARAMETER")
+
 package lesson1.task1
 
 import java.lang.Math.*
@@ -65,7 +66,6 @@ fun lengthInMeters(sagenes: Int, arshins: Int, vershoks: Int): Double =
         4.445 * (sagenes * 48.0 + arshins * 16.0 + vershoks) / 100.0
 
 
-
 /**
  * Тривиальная
  *
@@ -81,8 +81,7 @@ fun angleInRadian(grad: Int, min: Int, sec: Int): Double =
  * Найти длину отрезка, соединяющего точки на плоскости с координатами (x1, y1) и (x2, y2).
  * Например, расстояние между (3, 0) и (0, 4) равно 5
  */
-fun trackLength(x1: Double, y1: Double, x2: Double, y2: Double): Double
-{
+fun trackLength(x1: Double, y1: Double, x2: Double, y2: Double): Double {
     val x = x2 - x1
     val y = y2 - y1
 
@@ -114,8 +113,7 @@ fun travelMinutes(hoursDepart: Int, minutesDepart: Int, hoursArrive: Int, minute
  * Сколько денег будет на счету через 3 года (с учётом сложных процентов)?
  * Например, 100 рублей под 10% годовых превратятся в 133.1 рубля
  */
-fun accountInThreeYears(initial: Int, percent: Int): Double
-{
+fun accountInThreeYears(initial: Int, percent: Int): Double {
     var res = initial.toDouble()
     res *= pow((1.0 + percent / 100.0), 3.0)
     return res
@@ -127,8 +125,7 @@ fun accountInThreeYears(initial: Int, percent: Int): Double
  * Пользователь задает целое трехзначное число (например, 478).
  *Необходимо вывести число, полученное из заданного перестановкой цифр в обратном порядке (например, 874).
  */
-fun numberRevert(number: Int): Int
-{
+fun numberRevert(number: Int): Int {
     val first = number % 10
     val sec = (number / 10) % 10
     val thr = number / 100

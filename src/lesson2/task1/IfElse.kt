@@ -1,4 +1,5 @@
 @file:Suppress("UNUSED_PARAMETER")
+
 package lesson2.task1
 
 import lesson1.task1.discriminant
@@ -36,13 +37,12 @@ fun minBiRoot(a: Double, b: Double, c: Double): Double {
  */
 fun ageDescription(age: Int): String {
     val last = age % 10
-    return when
-    {
-        (age / 10) % 10 == 1 ->  "$age лет"
+    return when {
+        (age / 10) % 10 == 1 -> "$age лет"
         last >= 5 -> "$age лет"
         last >= 2 -> "$age года"
         last == 1 -> "$age год"
-        else      -> "$age лет"
+        else -> "$age лет"
     }
 }
 
@@ -61,11 +61,10 @@ fun timeForHalfWay(t1: Double, v1: Double,
 
     val way = (way1 + way2 + t3 * v3) / 2.0
 
-    return when
-    {
+    return when {
         way > way1 + way2 -> t1 + t2 + (way - way1 - way2) / v3
-        way > way1        -> t1 + (way - way1) / v2
-        else              -> way / v1
+        way > way1 -> t1 + (way - way1) / v2
+        else -> way / v1
     }
 }
 
@@ -80,8 +79,7 @@ fun timeForHalfWay(t1: Double, v1: Double,
  */
 fun whichRookThreatens(kingX: Int, kingY: Int,
                        rookX1: Int, rookY1: Int,
-                       rookX2: Int, rookY2: Int): Int
-{
+                       rookX2: Int, rookY2: Int): Int {
     var res = 0
     if (kingX == rookX1 || kingY == rookY1) res += 1
     if (kingX == rookX2 || kingY == rookY2) res += 2
@@ -101,8 +99,7 @@ fun whichRookThreatens(kingX: Int, kingY: Int,
  */
 fun rookOrBishopThreatens(kingX: Int, kingY: Int,
                           rookX: Int, rookY: Int,
-                          bishopX: Int, bishopY: Int): Int
-{
+                          bishopX: Int, bishopY: Int): Int {
     var res = 0
     if (kingX == rookX || kingY == rookY) res += 1
     if (Math.abs(kingX - bishopX) == Math.abs(kingY - bishopY)) res += 2
@@ -126,23 +123,17 @@ fun triangleKind(a: Double, b: Double, c: Double): Int {
 
     val C = Math.max(Math.max(a, b), c)
     val A = Math.min(Math.min(a, b), Math.min(a, c))
-    val B = Math.max(Math.max(Math.min(a,b), Math.min(a, c)), Math.min(c, b))
-
-    println("a $A")
-    println("b $B")
-    println("c: $C")
+    val B = Math.max(Math.max(Math.min(a, b), Math.min(a, c)), Math.min(c, b))
 
     val left = A * A + B * B
     val right = C * C
 
-    println("left $left")
-    println("right $right\n")
-   return when {
-       A + B <= C       -> -1
-       left > right     -> 0
-       left == right    -> 1
-       else             -> 2
-   }
+    return when {
+        A + B <= C -> -1
+        left > right -> 0
+        left == right -> 1
+        else -> 2
+    }
 }
 
 /**
@@ -166,9 +157,9 @@ fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int {
         D = b
     }
     return when {
-        B < C   -> -1
-        B > D   -> D - C
-        else    -> B - C
+        B < C -> -1
+        B > D -> D - C
+        else -> B - C
     }
 }
 
