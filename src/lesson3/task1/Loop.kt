@@ -138,12 +138,10 @@ fun minDivisor(n: Int): Int {
  */
 fun maxDivisor(n: Int): Int {
     var tmp = n / 2 + 1
-    val thr = Math.sqrt(n.toDouble()) - 1 //Порог, ниже не имеет смысла
 
-    while (tmp > thr && n % tmp != 0)
+    while (tmp > 0 && n % tmp != 0)
         tmp--
 
-    if (n % tmp != 0) return 1
     return tmp
 }
 
@@ -179,6 +177,9 @@ fun SinCosHelper(x: Double, n: Int, plus: Int): Double {
     return powL / fact
 }
 
+fun main(args: Array<String>) {
+    println(sin(-6.5798912800186224, 1e-10))
+}
 
 /**
  * Средняя

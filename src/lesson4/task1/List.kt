@@ -263,6 +263,8 @@ fun convertToString(n: Int, base: Int): String {
         str += if (el < 10)
             el.toString()
         else (87 + el).toChar()
+
+    if (str.isEmpty()) str = "0"
     return str
 }
 
@@ -316,6 +318,9 @@ fun romanHelp(n: Int, digit: Int): List<Int> {
     }
 }
 
+fun main(args: Array<String>) {
+    println(roman(15459))
+}
 
 /**
  * Сложная
@@ -332,6 +337,8 @@ fun roman(n: Int): String {
         list += romanHelp(getNumber(n, di - i), i) //Возвращает цифру с индексом i (слева-направо с 0)
 
     var str = ""
+    for (i in 0 until n / 1000) str += "M" //incorrect
+
     for (i in list)
         str += when (i) {
             1    -> "I"
@@ -340,7 +347,7 @@ fun roman(n: Int): String {
             50   -> "L"
             100  -> "C"
             500  -> "D"
-            1000 -> "M"
+            //1000 -> "M"
             else -> ""
         }
     return str
@@ -364,7 +371,7 @@ fun numberR(numb3: Int): String = when (numb3 / 100) {
 //2 цифры
 fun decadeR(numb2: Int): String = when ((numb2 / 10) % 10) {
     9 -> "девяносто "
-    8 -> "восемдесят "
+    8 -> "восемьдесят "
     7 -> "семьдесят "
     6 -> "шестьдесят "
     5 -> "пятьдесят "
