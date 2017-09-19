@@ -106,10 +106,6 @@ fun rookOrBishopThreatens(kingX: Int, kingY: Int,
     return res
 }
 
-fun main(args: Array<String>) {
-    triangleKind(3.0, 7.5, 4.0)
-}
-
 /**
  * Простая
  *
@@ -121,15 +117,16 @@ fun main(args: Array<String>) {
 fun triangleKind(a: Double, b: Double, c: Double): Int {
     if (a <= 0.0 || b <= 0.0 || c <= 0.0) return -1
 
-    val C = Math.max(Math.max(a, b), c)
-    val A = Math.min(Math.min(a, b), Math.min(a, c))
-    val B = Math.max(Math.max(Math.min(a, b), Math.min(a, c)), Math.min(c, b))
+    //Просто не хватает фантазии
+    val c1 = Math.max(Math.max(a, b), c)
+    val a1 = Math.min(Math.min(a, b), Math.min(a, c))
+    val b1 = Math.max(Math.max(Math.min(a, b), Math.min(a, c)), Math.min(c, b))
 
-    val left = A * A + B * B
-    val right = C * C
+    val left = a1 * a1 + b1 * b1
+    val right = c1 * c1
 
     return when {
-        A + B <= C -> -1
+        a1 + b1 <= c1 -> -1
         left > right -> 0
         left == right -> 1
         else -> 2
@@ -146,20 +143,20 @@ fun triangleKind(a: Double, b: Double, c: Double): Int {
  */
 fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int {
 
-    var B = b
-    var C = c
-    var D = d
+    var b1 = b
+    var c1 = c
+    var d1 = d
 
     // a is first
     if (a > c) {
-        B = d
-        C = a
-        D = b
+        b1 = d
+        c1 = a
+        d1 = b
     }
     return when {
-        B < C -> -1
-        B > D -> D - C
-        else -> B - C
+        b1 < c1 -> -1
+        b1 > d1 -> d1 - c1
+        else -> b1 - c1
     }
 }
 

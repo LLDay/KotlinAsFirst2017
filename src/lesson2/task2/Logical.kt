@@ -61,12 +61,12 @@ fun circleInside(x1: Double, y1: Double, r1: Double,
  */
 fun brickPasses(a: Int, b: Int, c: Int, r: Int, s: Int): Boolean {
     // a >= b >= c
-    val B = Math.max(Math.max(Math.min(a, b), Math.min(a, c)), Math.min(b, c))
-    val C = Math.min(Math.min(a, b), c)
+    val b1 = Math.max(Math.max(Math.min(a, b), Math.min(a, c)), Math.min(b, c))
+    val c1 = Math.min(Math.min(a, b), c)
 
     // r >= s
-    val R = Math.max(r, s)
-    val S = Math.min(r, s)
+    val r1 = Math.max(r, s)
+    val s1 = Math.min(r, s)
 
-    return R >= B && S >= C
+    return r1 >= b1 && s1 >= c1
 }

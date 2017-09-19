@@ -2,9 +2,6 @@
 
 package lesson3.task1
 
-import com.sun.javaws.exceptions.InvalidArgumentException
-import org.omg.CORBA.BAD_PARAM
-
 /**
  * Пример
  *
@@ -67,13 +64,13 @@ fun digitCountInNumber(n: Int, m: Int): Int =
 fun digitNumber(n: Int): Int {
     if (n == 0) return 1
 
-    var N = n
-    if (N < 0) N *= -1
+    var n1 = n
+    if (n1 < 0) n1 *= -1
 
     var count = 0
 
-    while (N > 0) {
-        N /= 10
+    while (n1 > 0) {
+        n1 /= 10
         count++
     }
 
@@ -101,13 +98,13 @@ fun fib(n: Int): Int {
 
 //НОД
 fun gcd(m: Int, n: Int): Int {
-    var M = m
-    var N = n
-    while (M != 0 && N != 0 && M != N) {
-        if (M >= N) M %= N
-        else N %= M
+    var m1 = m
+    var n1 = n
+    while (m1 != 0 && n1 != 0 && m1 != n1) {
+        if (m1 >= n1) m1 %= n1
+        else n1 %= m1
     }
-    return Math.max(M, N)
+    return Math.max(m1, n1)
 }
 
 /**
@@ -141,11 +138,15 @@ fun minDivisor(n: Int): Int {
  */
 fun maxDivisor(n: Int): Int {
     var tmp = n / 2 + 1
+    val thr = Math.sqrt(n.toDouble()) - 1 //Порог, ниже не имеет смысла
 
-    while (tmp > 1 && n % tmp != 0)
+    while (tmp > thr && n % tmp != 0)
         tmp--
+
+    if (n % tmp != 0) return 1
     return tmp
 }
+
 
 /**
  * Простая
@@ -191,14 +192,14 @@ fun sin(x: Double, eps: Double): Double {
     if (a >= 0.0) while (a > 2 * Math.PI) a -= 2 * Math.PI
     if (a < 0.0) while (a < -2 * Math.PI) a += 2 * Math.PI
 
-    var X = 0.0
+    var x1 = 0.0
     var n = 0
     while (SinCosHelper(a, n, 1) >= eps) {
-        if (n % 2 == 0) X += SinCosHelper(a, n, 1) //Каждое четное место
-        else X -= SinCosHelper(a, n, 1)
+        if (n % 2 == 0) x1 += SinCosHelper(a, n, 1) //Каждое четное место
+        else x1 -= SinCosHelper(a, n, 1)
         n++
     }
-    return X
+    return x1
 }
 
 /**
@@ -213,14 +214,14 @@ fun cos(x: Double, eps: Double): Double {
     if (a >= 0.0) while (a > 2 * Math.PI) a -= 2 * Math.PI
     if (a < 0.0) while (a < -2 * Math.PI) a += 2 * Math.PI
 
-    var X = 0.0
+    var x1 = 0.0
     var n = 0
     while (SinCosHelper(a, n, 0) >= eps) {
-        if (n % 2 == 0) X += SinCosHelper(a, n, 0) //Каждое четное место
-        else X -= SinCosHelper(a, n, 0)
+        if (n % 2 == 0) x1 += SinCosHelper(a, n, 0) //Каждое четное место
+        else x1 -= SinCosHelper(a, n, 0)
         n++
     }
-    return X
+    return x1
 }
 
 //Вспомогательная
@@ -239,11 +240,11 @@ fun getNumber(n: Int, index: Int): Int {
                 "Digit of number = $count\n" +
                 "Index = $index")
 
-    var N = n
+    var n1 = n
     for (i in 1..(count - index - 1))
-        N /= 10
+        n1 /= 10
 
-    return N % 10
+    return n1 % 10
 }
 
 /**
@@ -266,7 +267,6 @@ fun revert(n: Int): Int {
  * первая цифра равна последней, вторая -- предпоследней и так далее.
  * 15751 -- палиндром, 3653 -- нет.
  */
-
 
 
 fun isPalindrome(n: Int): Boolean {
@@ -322,8 +322,7 @@ fun squareSequenceDigit(n: Int): Int {
  * 1123581321345589144...
  * Например, 2-я цифра равна 1, 9-я 2, 14-я 5.
  */
-fun fibSequenceDigit(n: Int): Int
-{
+fun fibSequenceDigit(n: Int): Int {
     var q = 0
     var numb = 0
     var preNumb = numb
