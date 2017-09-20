@@ -245,6 +245,7 @@ fun convert(n: Int, base: Int): List<Int> {
         a /= base
     }
     list.reverse()
+    if (list.isEmpty()) list += 0
     return list
 }
 
@@ -264,7 +265,6 @@ fun convertToString(n: Int, base: Int): String {
             el.toString()
         else (87 + el).toChar()
 
-    if (str.isEmpty()) str = "0"
     return str
 }
 
@@ -314,10 +314,18 @@ fun romanHelp(n: Int, digit: Int): List<Int> {
         7 -> listOf(5 * di, di, di)
         8 -> listOf(5 * di, di, di, di)
         9 -> listOf(di, 10 * di)
-        else -> listOf()
+        else ->
+        {
+            var tmp = listOf<Int>()
+            for (i in 1..n) tmp += di
+            return tmp
+        }
     }
 }
 
+fun main(args: Array<String>) {
+    println(roman(11190))
+}
 
 /**
  * Сложная
@@ -329,12 +337,14 @@ fun romanHelp(n: Int, digit: Int): List<Int> {
  */
 fun roman(n: Int): String {
     var list = listOf<Int>()
-    val di = digitNumber(n) - 1
-    for (i in di downTo 0)
-        list += romanHelp(getNumber(n, di - i), i) //Возвращает цифру с индексом i (слева-направо с 0)
-
+    val th = n % 1000
+    val di = digitNumber(th) - 1
     var str = ""
-    for (i in 4..n / 1000) str += "M" //incorrect
+
+    for (i in di downTo 0)
+        list += romanHelp(getNumber(th, di - i), i)
+
+    for (i in 1..n / 1000) str += "M" //incorrect
 
     for (i in list)
         str += when (i) {
