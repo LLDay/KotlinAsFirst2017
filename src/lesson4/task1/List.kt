@@ -314,13 +314,10 @@ fun romanHelp(n: Int, digit: Int): List<Int> {
         7 -> listOf(5 * di, di, di)
         8 -> listOf(5 * di, di, di, di)
         9 -> listOf(di, 10 * di)
-        else -> listOf(0)
+        else -> listOf()
     }
 }
 
-fun main(args: Array<String>) {
-    println(roman(15459))
-}
 
 /**
  * Сложная
@@ -337,18 +334,18 @@ fun roman(n: Int): String {
         list += romanHelp(getNumber(n, di - i), i) //Возвращает цифру с индексом i (слева-направо с 0)
 
     var str = ""
-    for (i in 0 until n / 1000) str += "M" //incorrect
+    for (i in 4..n / 1000) str += "M" //incorrect
 
     for (i in list)
         str += when (i) {
-            1    -> "I"
-            5    -> "V"
-            10   -> "X"
-            50   -> "L"
-            100  -> "C"
-            500  -> "D"
-            //1000 -> "M"
-            else -> ""
+            1       -> "I"
+            5       -> "V"
+            10      -> "X"
+            50      -> "L"
+            100     -> "C"
+            500     -> "D"
+            1000    -> "M"
+            else    -> ""
         }
     return str
 }

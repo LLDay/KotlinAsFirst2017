@@ -2,6 +2,20 @@
 
 package lesson3.task1
 
+//Вспомогательная
+fun powInt(x: Int, n: Int): Int = when (n) {
+    1 -> x
+    0 -> 1
+    else -> x * powInt(x, n - 1)
+}
+
+//Вспомогательная
+fun powInt(x: Double, n: Int): Double = when (n) {
+    1 -> x
+    0 -> 1.0
+    else -> x * powInt(x, n - 1)
+}
+
 /**
  * Пример
  *
@@ -124,7 +138,7 @@ fun lcm(m: Int, n: Int): Int = m * n / gcd(m, n)
 fun minDivisor(n: Int): Int {
     if (n % 2 == 0) return 2
     var tmp = 3
-    val thr = Math.sqrt(n.toDouble()) + 1 //Порог, выше не имеет смысла
+    val thr = Math.sqrt(n.toDouble()).toInt() //Порог, выше не имеет смысла
 
     while (tmp < thr && n % tmp != 0) tmp += 2
     if (n % tmp != 0) return n
@@ -136,14 +150,7 @@ fun minDivisor(n: Int): Int {
  *
  * Для заданного числа n > 1 найти максимальный делитель, меньший n
  */
-fun maxDivisor(n: Int): Int {
-    var tmp = n / 2 + 1
-
-    while (tmp > 0 && n % tmp != 0)
-        tmp--
-
-    return tmp
-}
+fun maxDivisor(n: Int): Int = n / minDivisor(n)
 
 
 /**
@@ -171,14 +178,13 @@ fun squareBetweenExists(m: Int, n: Int): Boolean {
     return tmp * tmp == m
 }
 
-fun SinCosHelper(x: Double, n: Int, plus: Int): Double {
-    val powL = Math.pow(x, (2.0 * n + plus))
-    val fact = factorial(2 * n + plus)
-    return powL / fact
-}
+// if (sin) plus = 1
+// if (cos) plus = 0
+fun sinHelper(x: Double, n: Int): Double {
+    val powL = Math.pow(Math.abs(x), 2.0 * n + 1)
+    val factR = factorial(2 * n + 1)
 
-fun main(args: Array<String>) {
-    println(sin(-6.5798912800186224, 1e-10))
+    return powL / factR
 }
 
 /**
@@ -190,46 +196,42 @@ fun main(args: Array<String>) {
  */
 fun sin(x: Double, eps: Double): Double {
     var a = x
-    if (a >= 0.0) while (a > 2 * Math.PI) a -= 2 * Math.PI
-    if (a < 0.0) while (a < -2 * Math.PI) a += 2 * Math.PI
 
-    var x1 = 0.0
+    while (a >= 2 * Math.PI) a -= 2 * Math.PI
+    while (a <= -2 * Math.PI) a += 2 * Math.PI
+
+    var res = 0.0
     var n = 0
-    while (SinCosHelper(a, n, 1) >= eps) {
-        if (n % 2 == 0) x1 += SinCosHelper(a, n, 1) //Каждое четное место
-        else x1 -= SinCosHelper(a, n, 1)
-        n++
+    var thr = sinHelper(a, n)
+
+    while (thr >= eps) {
+        if (n % 2 == 0) res += thr //Каждое четное место
+        else res -= thr
+        thr = sinHelper(a, ++n)
     }
-    return x1
+    return if (a >= 0) res
+    else -res
 }
 
 /**
  * Средняя
  *
  * Для заданного x рассчитать с заданной точностью eps
- * cos(x) = X^0 / 0! - x^2 / 2! + x^4 / 4! - x^6 / 6! + ...
+ * cos(x) = (0) x^0 / 0! - (1) x^2 / 2! + (2) x^4 / 4! - (3) x^6 / 6! + ...
  * Нужную точность считать достигнутой, если очередной член ряда меньше eps по модулю
  */
 fun cos(x: Double, eps: Double): Double {
-    var a = x
-    if (a >= 0.0) while (a > 2 * Math.PI) a -= 2 * Math.PI
-    if (a < 0.0) while (a < -2 * Math.PI) a += 2 * Math.PI
+    //Cos(-x) = Cos(x)
+    var a = Math.abs(x) //a = [minDouble; maxDouble]
+    while (a >= 2 * Math.PI) a -= 2.0 * Math.PI //a = [0; 2Pi)
 
-    var x1 = 0.0
-    var n = 0
-    while (SinCosHelper(a, n, 0) >= eps) {
-        if (n % 2 == 0) x1 += SinCosHelper(a, n, 0) //Каждое четное место
-        else x1 -= SinCosHelper(a, n, 0)
-        n++
-    }
-    return x1
-}
+    //Cos(x) = Cos(2Pi - x)
+    if (a > Math.PI) a = 2.0 * Math.PI - a //a = [0; Pi)
 
-//Вспомогательная
-fun powInt(n: Int, e: Int): Int {
-    if (e == 1) return n
-    if (e == 0) return 1
-    return n * powInt(n, e - 1)
+    a -= Math.PI / 2.0 //a = [-Pi/2; Pi/2)
+    //Cos(x) = Cos(a + Pi/2) = -Sin(a)
+
+    return -sin(a, eps)
 }
 
 fun getNumber(n: Int, index: Int): Int {
@@ -294,7 +296,6 @@ fun hasDifferentDigits(n: Int): Boolean {
     return false
 }
 
-fun sqrInt(n: Int): Int = n * n
 
 /**
  * Сложная
@@ -311,9 +312,9 @@ fun squareSequenceDigit(n: Int): Int {
 
     while (numb < n) {
         preNumb = numb
-        numb += digitNumber(sqrInt(++q))
+        numb += digitNumber(powInt(++q, 2))
     }
-    return getNumber(sqrInt(q), n - preNumb - 1)
+    return getNumber(powInt(q, 2), n - preNumb - 1)
 }
 
 /**
