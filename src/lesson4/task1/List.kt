@@ -314,17 +314,13 @@ fun romanHelp(n: Int, digit: Int): List<Int> {
         7 -> listOf(5 * di, di, di)
         8 -> listOf(5 * di, di, di, di)
         9 -> listOf(di, 10 * di)
-        else ->
-        {
-            var tmp = listOf<Int>()
-            for (i in 1..n) tmp += di
-            return tmp
-        }
+        else -> listOf()
     }
 }
 
 fun main(args: Array<String>) {
-    println(roman(11190))
+    println(roman(10193))
+    println(convert(0, 290))
 }
 
 /**
