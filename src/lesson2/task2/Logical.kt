@@ -3,6 +3,7 @@
 package lesson2.task2
 
 import lesson1.task1.sqr
+import lesson3.task1.getDigits
 
 /**
  * Пример
@@ -19,8 +20,8 @@ fun pointInsideCircle(x: Double, y: Double, x0: Double, y0: Double, r: Double) =
  * Определить, счастливое ли заданное число, вернуть true, если это так.
  */
 fun isNumberHappy(number: Int): Boolean {
-    val sum = number / 1000 + (number / 100) % 10
-    return sum == (number / 10) % 10 + number % 10
+    val digits = getDigits(number)
+    return digits[0] + digits[1] == digits[2] + digits[3]
 }
 
 /**
@@ -31,7 +32,7 @@ fun isNumberHappy(number: Int): Boolean {
  * Считать, что ферзи не могут загораживать друг друга.
  */
 fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int): Boolean {
-    return x1 == x2 ||
+    return  x1 == x2 ||
             y1 == y2 ||
             Math.abs(x2 - x1) == Math.abs(y2 - y1)
 }
@@ -45,8 +46,8 @@ fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int): Boolean {
  */
 fun circleInside(x1: Double, y1: Double, r1: Double,
                  x2: Double, y2: Double, r2: Double): Boolean {
-    val r_r = Math.sqrt(sqr(x2 - x1) + sqr(y2 - y1))
-    return r2 >= r_r + r1
+    val rad = Math.sqrt(sqr(x2 - x1) + sqr(y2 - y1))
+    return r2 >= rad + r1
 }
 
 
@@ -60,9 +61,10 @@ fun circleInside(x1: Double, y1: Double, r1: Double,
  * Вернуть true, если кирпич пройдёт
  */
 fun brickPasses(a: Int, b: Int, c: Int, r: Int, s: Int): Boolean {
-    // a >= b >= c
-    val b1 = Math.max(Math.max(Math.min(a, b), Math.min(a, c)), Math.min(b, c))
-    val c1 = Math.min(Math.min(a, b), c)
+    val list = listOf(a, b, c).sorted() //√
+    // a >= b >= c0
+    val b1 = list[1]
+    val c1 = list[0]
 
     // r >= s
     val r1 = Math.max(r, s)

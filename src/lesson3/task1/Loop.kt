@@ -3,18 +3,32 @@
 package lesson3.task1
 
 //Вспомогательная
-fun powInt(x: Int, n: Int): Int = when (n) {
-    1 -> x
-    0 -> 1
-    else -> x * powInt(x, n - 1)
+fun powInt(x: Int, n: Int): Int {
+    if (n == 0) return 1
+
+    val maxDiv = maxDivisor(n)
+    if (maxDiv == 1) return powInt(x, n - 1) * x
+
+    //x^kn = (x^k)^n
+    val tmp = powInt(x, n / maxDiv) //prime or 1
+    return powInt(tmp, maxDiv)
 }
 
 //Вспомогательная
-fun powInt(x: Double, n: Int): Double = when (n) {
-    1 -> x
-    0 -> 1.0
-    else -> x * powInt(x, n - 1)
+fun powInt(x: Double, n: Int): Double {
+    if (n == 0) return 1.0
+
+    val maxDiv = maxDivisor(n)
+    if (maxDiv == 1) return powInt(x, n - 1) * x
+
+    //x^kn = (x^k)^n
+    val tmp = powInt(x, n / maxDiv) //prime or 1
+    return powInt(tmp, maxDiv)
 }
+
+//wrapper
+fun sqrtInt(n: Int): Double = Math.sqrt(n.toDouble())
+
 
 /**
  * Пример
@@ -76,17 +90,13 @@ fun digitCountInNumber(n: Int, m: Int): Int =
  * Например, число 1 содержит 1 цифру, 456 -- 3 цифры, 65536 -- 5 цифр.
  */
 fun digitNumber(n: Int): Int {
-    if (n == 0) return 1
-
-    var n1 = n
-    if (n1 < 0) n1 *= -1
-
+    var numb = Math.abs(n)
     var count = 0
 
-    while (n1 > 0) {
-        n1 /= 10
+    do {
+        numb /= 10
         count++
-    }
+    } while (numb > 0)
 
     return count
 }
@@ -112,13 +122,21 @@ fun fib(n: Int): Int {
 
 //НОД
 fun gcd(m: Int, n: Int): Int {
-    var m1 = m
-    var n1 = n
-    while (m1 != 0 && n1 != 0 && m1 != n1) {
-        if (m1 >= n1) m1 %= n1
-        else n1 %= m1
+    if (m < 1) throw IllegalArgumentException("m = $m < 1")
+    if (n < 1) throw IllegalArgumentException("n = $n < 1")
+
+    var m1 = Math.max(m, n)
+    var n1 = Math.min(m, n)
+
+    while (m1 != n1 && n1 != 0) {
+        m1 %= n1
+        //swap
+        n1 += m1
+        m1 = n1 - m1
+        n1 -= m1
+        //!swap
     }
-    return Math.max(m1, n1)
+    return m1
 }
 
 /**
@@ -138,12 +156,13 @@ fun lcm(m: Int, n: Int): Int = m * n / gcd(m, n)
 fun minDivisor(n: Int): Int {
     if (n % 2 == 0) return 2
     var tmp = 3
-    val thr = Math.sqrt(n.toDouble()).toInt() //Порог, выше не имеет смысла
+    val thr = Math.floor(sqrtInt(n)) //Порог, выше не имеет смысла
 
     while (tmp < thr && n % tmp != 0) tmp += 2
     if (n % tmp != 0) return n
     return tmp
 }
+
 
 /**
  * Простая
@@ -172,9 +191,9 @@ fun isCoPrime(m: Int, n: Int): Boolean = gcd(m, n) == 1
 fun squareBetweenExists(m: Int, n: Int): Boolean {
     //[√n] != [√m] => между m и n есть целый квадрат
     if (m != n)
-        return (Math.sqrt(m.toDouble())).toInt() != (Math.sqrt(n.toDouble())).toInt()
+        return Math.floor(sqrtInt(m)) != Math.floor(sqrtInt(n))
 
-    val tmp = (Math.sqrt(m.toDouble())).toInt()
+    val tmp = (sqrtInt(m)).toInt()
     return tmp * tmp == m
 }
 
@@ -195,10 +214,7 @@ fun sinHelper(x: Double, n: Int): Double {
  * Нужную точность считать достигнутой, если очередной член ряда меньше eps по модулю
  */
 fun sin(x: Double, eps: Double): Double {
-    var a = x
-
-    while (a >= 2 * Math.PI) a -= 2 * Math.PI
-    while (a <= -2 * Math.PI) a += 2 * Math.PI
+    val a = x % (2 * Math.PI)
 
     var res = 0.0
     var n = 0
@@ -220,34 +236,33 @@ fun sin(x: Double, eps: Double): Double {
  * cos(x) = (0) x^0 / 0! - (1) x^2 / 2! + (2) x^4 / 4! - (3) x^6 / 6! + ...
  * Нужную точность считать достигнутой, если очередной член ряда меньше eps по модулю
  */
-fun cos(x: Double, eps: Double): Double {
-    //Cos(-x) = Cos(x)
-    var a = Math.abs(x) //a = [minDouble; maxDouble]
-    while (a >= 2 * Math.PI) a -= 2.0 * Math.PI //a = [0; 2Pi)
+//Cos(x) = Cos(x + Pi/2 - Pi/2) = Cos((x + Pi/2) - Pi/2) = Sin(x + Pi/2)
+fun cos(x: Double, eps: Double): Double = sin(x + Math.PI / 2.0, eps)
 
-    //Cos(x) = Cos(2Pi - x)
-    if (a > Math.PI) a = 2.0 * Math.PI - a //a = [0; Pi)
 
-    a -= Math.PI / 2.0 //a = [-Pi/2; Pi/2)
-    //Cos(x) = Cos(a + Pi/2) = -Sin(a)
+fun getDigits(n: Int): List<Int> {
+    //Возвращает массив, состоящий из цифр числа
+    var list = listOf<Int>()
+    val count = digitNumber(n)
+    var numb = n
 
-    return -sin(a, eps)
+    for (i in 1..count) {
+        list += numb % 10
+        numb /= 10
+    }
+
+    return list.reversed()
 }
 
-fun getNumber(n: Int, index: Int): Int {
-    //Возвращает цифру числа
-    //Индексация цифр слева направо с 0
-    val count = digitNumber(n)
-    if (count <= index)
-        throw Exception("Bad index\n" +
-                "Digit of number = $count\n" +
-                "Index = $index")
+fun getIndexDigit(n: Int, index: Int): Int {
+    if (index < 0)
+        throw IndexOutOfBoundsException("index = $index < 0")
 
-    var n1 = n
-    for (i in 1..(count - index - 1))
-        n1 /= 10
+    val lastN = digitNumber(n) - 1
+    if (index > lastN)
+        throw IndexOutOfBoundsException("index = $index > index of last digit ($lastN)")
 
-    return n1 % 10
+    return n / powInt(10, lastN - index) % 10
 }
 
 /**
@@ -258,8 +273,12 @@ fun getNumber(n: Int, index: Int): Int {
  */
 fun revert(n: Int): Int {
     var res = 0
-    for (i in 0 until digitNumber(n))
-        res += getNumber(n, i) * powInt(10, i)
+    val numbers = getDigits(n)
+    val digitN = digitNumber(n)
+
+    for (i in 0 until digitN)
+        res += numbers[i] * powInt(10, i)
+
     return res
 }
 
@@ -271,13 +290,14 @@ fun revert(n: Int): Int {
  * 15751 -- палиндром, 3653 -- нет.
  */
 
-
 fun isPalindrome(n: Int): Boolean {
-    val last = digitNumber(n) - 1
-    for (i in 0..last) {
-        if (i > last / 2) break
-        if (getNumber(n, i) != getNumber(n, last - i)) return false
-    }
+    val digits = getDigits(n)
+    val lastIndex = digits.lastIndex
+
+    for (i in 0..lastIndex / 2)
+        if (digits[i] != digits[lastIndex - i])
+            return false
+
     return true
 }
 
@@ -288,10 +308,11 @@ fun isPalindrome(n: Int): Boolean {
  * Например, 54 и 323 состоят из разных цифр, а 111 и 0 из одинаковых.
  */
 fun hasDifferentDigits(n: Int): Boolean {
-    val last = digitNumber(n) - 1
-    val firstN = getNumber(n, 0)
-    for (i in 0..last)
-        if (getNumber(n, i) != firstN)
+    val digits = getDigits(n)
+    val firstN = digits[0]
+
+    for (i in 1..digits.lastIndex)
+        if (digits[i] != firstN)
             return true
     return false
 }
@@ -305,16 +326,16 @@ fun hasDifferentDigits(n: Int): Boolean {
  * Например, 2-я цифра равна 4, 7-я 5, 12-я 6.
  */
 fun squareSequenceDigit(n: Int): Int {
-    var q = 0
-    var numb = 0
-    var preNumb = numb
-
+    var q = 1
+    var numb = 1
+    var preNumb = 0
 
     while (numb < n) {
         preNumb = numb
         numb += digitNumber(powInt(++q, 2))
     }
-    return getNumber(powInt(q, 2), n - preNumb - 1)
+
+    return getIndexDigit(powInt(q, 2), n - preNumb - 1)
 }
 
 /**
@@ -325,14 +346,14 @@ fun squareSequenceDigit(n: Int): Int {
  * Например, 2-я цифра равна 1, 9-я 2, 14-я 5.
  */
 fun fibSequenceDigit(n: Int): Int {
-    var q = 0
-    var numb = 0
-    var preNumb = numb
-
+    var q = 1
+    var numb = 1
+    var preNumb = 0
 
     while (numb < n) {
         preNumb = numb
         numb += digitNumber(fib(++q))
     }
-    return getNumber(fib(q), n - preNumb - 1)
+
+    return getIndexDigit(fib(q), n - preNumb - 1)
 }

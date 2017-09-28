@@ -3,7 +3,7 @@
 package lesson4.task1
 
 import lesson3.task1.digitNumber
-import lesson3.task1.getNumber
+import lesson3.task1.getDigits
 import lesson3.task1.minDivisor
 import lesson3.task1.powInt
 import lesson1.task1.discriminant
@@ -141,9 +141,10 @@ fun mean(list: List<Double>): Double {
  * Обратите внимание, что данная функция должна изменять содержание списка list, а не его копии.
  */
 fun center(list: MutableList<Double>): MutableList<Double> {
-    val cen = mean(list) //inheritance
-    for (i in 1..list.size)
-        list[i - 1] -= cen
+    val cen = mean(list)
+    for (i in 0..list.lastIndex)
+        list[i] -= cen
+
     return list
 }
 
@@ -158,6 +159,7 @@ fun times(a: List<Double>, b: List<Double>): Double {
     var res = 0.0
     for (i in 0..a.lastIndex)
         res += a[i] * b[i]
+
     return res
 }
 
@@ -190,15 +192,8 @@ fun polynom(p: List<Double>, x: Double): Double {
  * Обратите внимание, что данная функция должна изменять содержание списка list, а не его копии.
  */
 fun accumulate(list: MutableList<Double>): MutableList<Double> {
-    var tmp: Double
-
-    for (i in list.lastIndex downTo 0) {
-        tmp = 0.0
-        for (j in 0..i) {
-            tmp += list[j]
-        }
-        list[i] = tmp
-    }
+    for (i in 1..list.lastIndex)
+        list[i] = list[i] + list[i - 1]
     return list
 }
 
@@ -211,12 +206,12 @@ fun accumulate(list: MutableList<Double>): MutableList<Double> {
  */
 fun factorize(n: Int): List<Int> {
     val list = mutableListOf<Int>()
-    var tmp: Int
-    var N = n
-    while (N > 1) {
-        tmp = minDivisor(N)
+    var number = n
+
+    while (number > 1) {
+        val tmp = minDivisor(number)
         list.add(tmp)
-        N /= tmp
+        number /= tmp
     }
     return list
 }
@@ -244,9 +239,8 @@ fun convert(n: Int, base: Int): List<Int> {
         list.add(a % base)
         a /= base
     }
-    list.reverse()
     if (list.isEmpty()) list += 0
-    return list
+    return list.reversed()
 }
 
 /**
@@ -263,7 +257,7 @@ fun convertToString(n: Int, base: Int): String {
     for (el in list)
         str += if (el < 10)
             el.toString()
-        else (87 + el).toChar()
+        else 'a' + el - 10
 
     return str
 }
@@ -294,10 +288,12 @@ fun decimal(digits: List<Int>, base: Int): Int {
  */
 fun decimalFromString(str: String, base: Int): Int {
     val list = mutableListOf<Int>()
-    for (ch in str)
-        if (ch.toInt() in 48..57)
-            list.add(ch.toInt() - 48)
-        else list.add(ch.toInt() - 87)
+    for (ch in str) {
+        if (ch in '0'..'9')
+            list.add(ch - '0')
+        else list.add(ch - 'a' + 10)
+    }
+
     return decimal(list, base)
 }
 
@@ -318,10 +314,6 @@ fun romanHelp(n: Int, digit: Int): List<Int> {
     }
 }
 
-fun main(args: Array<String>) {
-    println(roman(10193))
-    println(convert(0, 290))
-}
 
 /**
  * Сложная
@@ -335,94 +327,101 @@ fun roman(n: Int): String {
     var list = listOf<Int>()
     val th = n % 1000
     val di = digitNumber(th) - 1
-    var str = ""
+    val str = StringBuilder()
+    val digits = getDigits(th)
 
     for (i in di downTo 0)
-        list += romanHelp(getNumber(th, di - i), i)
+        list += romanHelp(digits[di - i], i)
 
-    for (i in 1..n / 1000) str += "M" //incorrect
+    for (i in 1..n / 1000) str.append("M") //incorrect
 
     for (i in list)
-        str += when (i) {
-            1       -> "I"
-            5       -> "V"
-            10      -> "X"
-            50      -> "L"
-            100     -> "C"
-            500     -> "D"
-            1000    -> "M"
-            else    -> ""
-        }
-    return str
+        str.append(when (i) {
+            1 -> "I"
+            5 -> "V"
+            10 -> "X"
+            50 -> "L"
+            100 -> "C"
+            500 -> "D"
+            1000 -> "M"
+            else -> ""
+        })
+    return str.toString()
 }
 
 //3 цифры
-fun numberR(numb3: Int): String = when (numb3 / 100) {
-    9 -> "девятьсот "
-    8 -> "восемьсот "
-    7 -> "семьсот "
-    6 -> "шестьсот "
-    5 -> "пятьсот "
-    4 -> "четыреста "
-    3 -> "триста "
-    2 -> "двести "
-    1 -> "сто "
-    0 -> ""
-    else -> throw Exception("numb3 = $numb3")
-} + decadeR(numb3 % 100)
+fun numberR(numb3: Int): String =
+        when (numb3 / 100) {
+            9 -> "девятьсот "
+            8 -> "восемьсот "
+            7 -> "семьсот "
+            6 -> "шестьсот "
+            5 -> "пятьсот "
+            4 -> "четыреста "
+            3 -> "триста "
+            2 -> "двести "
+            1 -> "сто "
+            0 -> ""
+            else -> throw Exception("numb3 = $numb3")
+        } + decadeR(numb3 % 100)
 
 //2 цифры
-fun decadeR(numb2: Int): String = when ((numb2 / 10) % 10) {
-    9 -> "девяносто "
-    8 -> "восемьдесят "
-    7 -> "семьдесят "
-    6 -> "шестьдесят "
-    5 -> "пятьдесят "
-    4 -> "сорок "
-    3 -> "тридцать "
-    2 -> "двадцать "
-    1 -> when (numb2 % 10) {
-        9 -> "девятнадцать "
-        8 -> "восемнадцать "
-        7 -> "семнадцать "
-        6 -> "шестнадцать "
-        5 -> "пятнадцать "
-        4 -> "четырнадцать "
-        3 -> "тринадцать "
-        2 -> "двенадцать "
-        1 -> "одиннадцать "
-        else -> "десять "
-    }
-    else -> ""
-}
+fun decadeR(numb2: Int): String =
+        when ((numb2 / 10) % 10) {
+            9 -> "девяносто "
+            8 -> "восемьдесят "
+            7 -> "семьдесят "
+            6 -> "шестьдесят "
+            5 -> "пятьдесят "
+            4 -> "сорок "
+            3 -> "тридцать "
+            2 -> "двадцать "
+            1 -> when (numb2 % 10) {
+                9 -> "девятнадцать "
+                8 -> "восемнадцать "
+                7 -> "семнадцать "
+                6 -> "шестнадцать "
+                5 -> "пятнадцать "
+                4 -> "четырнадцать "
+                3 -> "тринадцать "
+                2 -> "двенадцать "
+                1 -> "одиннадцать "
+                else -> "десять "
+            }
+            else -> ""
+        }
 
-fun unitsR(numb: Int): String = if ((numb / 10) % 10 != 1) when (numb % 10) {
-    9 -> "девять "
-    8 -> "восемь "
-    7 -> "семь "
-    6 -> "шесть "
-    5 -> "пять "
-    4 -> "четыре "
-    3 -> "три "
-    2 -> "два "
-    1 -> "один "
-    else -> ""
-}
-else ""
+fun unitsR(numb: Int): String =
+        if ((numb / 10) % 10 != 1)
+            when (numb % 10) {
+                9 -> "девять "
+                8 -> "восемь "
+                7 -> "семь "
+                6 -> "шесть "
+                5 -> "пять "
+                4 -> "четыре "
+                3 -> "три "
+                2 -> "два "
+                1 -> "один "
+                else -> ""
+            }
+        else ""
 
-fun thousandR(numb: Int): String = if ((numb / 10) % 10 != 1) when (numb % 10) {
-    9 -> "девять тысяч "
-    8 -> "восемь тысяч "
-    7 -> "семь тысяч "
-    6 -> "шесть тысяч "
-    5 -> "пять тысяч "
-    4 -> "четыре тысячи "
-    3 -> "три тысячи "
-    2 -> "две тысячи "
-    1 -> "одна тысяча "
-    else -> "тысяч "
-}
-else "тысяч "
+fun thousandR(numb: Int): String =
+        if ((numb / 10) % 10 != 1)
+            when (numb % 10) {
+                9 -> "девять тысяч "
+                8 -> "восемь тысяч "
+                7 -> "семь тысяч "
+                6 -> "шесть тысяч "
+                5 -> "пять тысяч "
+                4 -> "четыре тысячи "
+                3 -> "три тысячи "
+                2 -> "две тысячи "
+                1 -> "одна тысяча "
+                else -> "тысяч "
+            }
+        else "тысяч "
 
 /**
  * Очень сложная
@@ -434,8 +433,12 @@ else "тысяч "
 fun russian(n: Int): String {
     val first = n / 1000
     val second = n % 1000
+    val str = StringBuilder()
 
-    var str = if (first != 0) numberR(first) + thousandR(first) else ""
-    str += numberR(second) + unitsR(second)
-    return str.trim()
+    //>= 1000
+    if (first != 0) str.append(numberR(first) + thousandR(first))
+    //< 1000
+    str.append(numberR(second) + unitsR(second))
+
+    return str.toString().trim()
 }
