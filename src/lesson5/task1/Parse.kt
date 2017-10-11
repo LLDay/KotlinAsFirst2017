@@ -102,7 +102,7 @@ fun dateStrToDigit(str: String): String {
         val year = list[2].toInt()
 
         if (correctDate(day, month, year))
-            "%02d.%02d.%04d".format(day, month, year)
+            "%02d.%02d.%d".format(day, month, year)
         else ""
     } catch (e: Exception) {
         ""
@@ -179,13 +179,21 @@ fun flattenPhoneNumber(phone: String): String {
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
 fun bestLongJump(jumps: String): Int {
-    if (!jumps.matches(Regex("""^((\d+|%+|-+) *)+$"""))) return -1
-    val res = Regex("""(\d+)""").findAll(jumps)
+    val jList = jumps.split(Regex(" +"))
+    val checkR = Regex("""^\d+|%|-$""")
+
     var max = -1
 
-    for (el in res.iterator())
-        max = Math.max(el.value.toInt(), max)
+    for (el in jList) {
+        if (!el.matches(checkR))
+            return -1
 
+        if (el.matches(Regex("""^\d+$"""))) {
+            val jump = el.toInt()
+            if (jump > max)
+                max = jump
+        }
+    }
     return max
 }
 
@@ -201,8 +209,6 @@ fun bestLongJump(jumps: String): Int {
  * При нарушении формата входной строки вернуть -1.
  */
 fun bestHighJump(jumps: String): Int {
-    //jumps.matches(Regex("""^(\d+ +[%\-+]+ *)+$""")) call StackOverflowError
-
     val jList = jumps.split(Regex(" +"))
     val checkR = Regex("^\\d+[+\\-%]+$")
     var max = -1

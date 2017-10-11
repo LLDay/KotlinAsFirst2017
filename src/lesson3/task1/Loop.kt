@@ -188,9 +188,7 @@ fun isCoPrime(m: Int, n: Int): Boolean = gcd(m, n) == 1
  * Например, для интервала 21..28 21 <= 5*5 <= 28, а для интервала 51..61 квадрата не существует.
  */
 fun squareBetweenExists(m: Int, n: Int): Boolean {
-    //[√n] != [√m] => между m и n есть целый квадрат
-    println(Math.ceil(sqrt(m)))
-    println(Math.floor(sqrt(n)))
+    //[√n] != [√m] => между m и n есть целый квадрат )
     return if (m != n)
         Math.ceil(sqrt(m)) <= Math.floor(sqrt(n))
     else pow(sqrt(m).toInt(), 2) == m
