@@ -3,31 +3,30 @@
 package lesson3.task1
 
 //Вспомогательная
-fun powInt(x: Int, n: Int): Int {
+fun pow(x: Int, n: Int): Int {
     if (n == 0) return 1
 
     val maxDiv = maxDivisor(n)
-    if (maxDiv == 1) return powInt(x, n - 1) * x
+    if (maxDiv == 1) return pow(x, n - 1) * x
 
     //x^kn = (x^k)^n
-    val tmp = powInt(x, n / maxDiv) //prime or 1
-    return powInt(tmp, maxDiv)
+    val tmp = pow(x, n / maxDiv) //prime or 1
+    return pow(tmp, maxDiv)
 }
 
 //Вспомогательная
-fun powInt(x: Double, n: Int): Double {
+fun pow(x: Double, n: Int): Double {
     if (n == 0) return 1.0
 
     val maxDiv = maxDivisor(n)
-    if (maxDiv == 1) return powInt(x, n - 1) * x
+    if (maxDiv == 1) return pow(x, n - 1) * x
 
     //x^kn = (x^k)^n
-    val tmp = powInt(x, n / maxDiv) //prime or 1
-    return powInt(tmp, maxDiv)
+    val tmp = pow(x, n / maxDiv) //prime or 1
+    return pow(tmp, maxDiv)
 }
 
-//wrapper
-fun sqrtInt(n: Int): Double = Math.sqrt(n.toDouble())
+fun sqrt(n: Int): Double = Math.sqrt(n.toDouble())
 
 
 /**
@@ -131,9 +130,9 @@ fun gcd(m: Int, n: Int): Int {
     while (m1 != n1 && n1 != 0) {
         m1 %= n1
         //swap
-        n1 += m1
-        m1 = n1 - m1
-        n1 -= m1
+        val tmp = m1
+        m1 = n1
+        n1 = tmp
         //!swap
     }
     return m1
@@ -156,7 +155,7 @@ fun lcm(m: Int, n: Int): Int = m * n / gcd(m, n)
 fun minDivisor(n: Int): Int {
     if (n % 2 == 0) return 2
     var tmp = 3
-    val thr = Math.floor(sqrtInt(n)) //Порог, выше не имеет смысла
+    val thr = Math.floor(sqrt(n)) //Порог, выше не имеет смысла
 
     while (tmp < thr && n % tmp != 0) tmp += 2
     if (n % tmp != 0) return n
@@ -190,15 +189,14 @@ fun isCoPrime(m: Int, n: Int): Boolean = gcd(m, n) == 1
  */
 fun squareBetweenExists(m: Int, n: Int): Boolean {
     //[√n] != [√m] => между m и n есть целый квадрат
-    if (m != n)
-        return Math.floor(sqrtInt(m)) != Math.floor(sqrtInt(n))
-
-    val tmp = (sqrtInt(m)).toInt()
-    return tmp * tmp == m
+    println(Math.ceil(sqrt(m)))
+    println(Math.floor(sqrt(n)))
+    return if (m != n)
+        Math.ceil(sqrt(m)) <= Math.floor(sqrt(n))
+    else pow(sqrt(m).toInt(), 2) == m
 }
 
-// if (sin) plus = 1
-// if (cos) plus = 0
+
 fun sinHelper(x: Double, n: Int): Double {
     val powL = Math.pow(Math.abs(x), 2.0 * n + 1)
     val factR = factorial(2 * n + 1)
@@ -226,7 +224,7 @@ fun sin(x: Double, eps: Double): Double {
         thr = sinHelper(a, ++n)
     }
     return if (a >= 0) res
-    else -res
+           else -res
 }
 
 /**
@@ -242,12 +240,12 @@ fun cos(x: Double, eps: Double): Double = sin(x + Math.PI / 2.0, eps)
 
 fun getDigits(n: Int): List<Int> {
     //Возвращает массив, состоящий из цифр числа
-    var list = listOf<Int>()
+    val list = mutableListOf<Int>()
     val count = digitNumber(n)
     var numb = n
 
     for (i in 1..count) {
-        list += numb % 10
+        list.add(numb % 10)
         numb /= 10
     }
 
@@ -256,13 +254,13 @@ fun getDigits(n: Int): List<Int> {
 
 fun getIndexDigit(n: Int, index: Int): Int {
     if (index < 0)
-        throw IndexOutOfBoundsException("index = $index < 0")
+        throw IllegalArgumentException("index = $index < 0")
 
     val lastN = digitNumber(n) - 1
     if (index > lastN)
-        throw IndexOutOfBoundsException("index = $index > index of last digit ($lastN)")
+        throw IllegalArgumentException("index = $index > index of last digit ($lastN)")
 
-    return n / powInt(10, lastN - index) % 10
+    return n / pow(10, lastN - index) % 10
 }
 
 /**
@@ -277,7 +275,7 @@ fun revert(n: Int): Int {
     val digitN = digitNumber(n)
 
     for (i in 0 until digitN)
-        res += numbers[i] * powInt(10, i)
+        res += numbers[i] * pow(10, i)
 
     return res
 }
@@ -332,10 +330,10 @@ fun squareSequenceDigit(n: Int): Int {
 
     while (numb < n) {
         preNumb = numb
-        numb += digitNumber(powInt(++q, 2))
+        numb += digitNumber(pow(++q, 2))
     }
 
-    return getIndexDigit(powInt(q, 2), n - preNumb - 1)
+    return getIndexDigit(pow(q, 2), n - preNumb - 1)
 }
 
 /**

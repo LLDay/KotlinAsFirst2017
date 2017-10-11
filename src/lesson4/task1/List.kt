@@ -5,7 +5,7 @@ package lesson4.task1
 import lesson3.task1.digitNumber
 import lesson3.task1.getDigits
 import lesson3.task1.minDivisor
-import lesson3.task1.powInt
+import lesson3.task1.pow
 import lesson1.task1.discriminant
 
 /**
@@ -209,9 +209,9 @@ fun factorize(n: Int): List<Int> {
     var number = n
 
     while (number > 1) {
-        val tmp = minDivisor(number)
-        list.add(tmp)
-        number /= tmp
+        val minDiv = minDivisor(number)
+        list.add(minDiv)
+        number /= minDiv
     }
     return list
 }
@@ -253,13 +253,13 @@ fun convert(n: Int, base: Int): List<Int> {
  */
 fun convertToString(n: Int, base: Int): String {
     val list = convert(n, base)
-    var str = ""
+    val str = StringBuilder()
     for (el in list)
-        str += if (el < 10)
-            el.toString()
-        else 'a' + el - 10
+        if (el < 10)
+            str.append(el.toString())
+        else str.append('a' + el - 10)
 
-    return str
+    return str.toString()
 }
 
 
@@ -273,7 +273,7 @@ fun convertToString(n: Int, base: Int): String {
 fun decimal(digits: List<Int>, base: Int): Int {
     var res = 0
     for ((i, di) in digits.withIndex())
-        res += di * powInt(base, digits.lastIndex - i)
+        res += di * pow(base, digits.lastIndex - i)
     return res
 }
 
@@ -299,7 +299,7 @@ fun decimalFromString(str: String, base: Int): Int {
 
 
 fun romanHelp(n: Int, digit: Int): List<Int> {
-    val di = powInt(10, digit)
+    val di = pow(10, digit)
     return when (n) {
         1 -> listOf(di)
         2 -> listOf(di, di)
