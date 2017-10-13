@@ -327,31 +327,39 @@ fun minContainingCircle(vararg points: Point): Circle {
         circleRes = circleByDiameter(Segment(points[0], points[1]))
 
     for (i in 0..points.lastIndex - 2)
-        for (j in i + 1 until points.lastIndex)
-            for (k in j + 1..points.lastIndex) {
-                val a = points[i]
-                val b = points[j]
-                val c = points[k]
+        for (j in i + 1 until points.lastIndex) {
+            val a = points[i]
+            val b = points[j]
 
-                val circles = listOf(
-                        circleByThreePoints(a, b, c),
-                        circleByDiameter(Segment(a, b)),
-                        circleByDiameter(Segment(b, c)),
-                        circleByDiameter(Segment(c, a))
-                )
+            val circles = mutableListOf(circleByDiameter(Segment(a, b)), circleRes)
+
+            for (k in j + 1..points.lastIndex) {
+                val c = points[k]
+                circles[1] = circleByThreePoints(a, b, c)
 
                 for (circle in circles) {
                     var belongs = true
 
-                    for (point in points) {
+                    for (point in points)
                         if (!circle.isBelong(point))
                             belongs = false
-                    }
 
                     if (belongs && circleRes.radius > circle.radius)
-                            circleRes = circle
+                        circleRes = circle
                 }
             }
+        }
+
+    //Отдельно рассматривается случай, так как в цикле он не достигается
+    val exclusionCircle = circleByDiameter(Segment(points[points.lastIndex - 1], points.last()))
+    var belongs = true
+    for (point in points)
+        if (!exclusionCircle.isBelong(point))
+            belongs = false
+
+    if (belongs && circleRes.radius > exclusionCircle.radius)
+        circleRes = exclusionCircle
+    //
 
     return circleRes
 }
