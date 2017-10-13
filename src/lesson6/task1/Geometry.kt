@@ -3,7 +3,6 @@
 package lesson6.task1
 
 import lesson1.task1.sqr
-import java.lang.Math.*
 
 /**
  * Точка на плоскости
@@ -82,6 +81,8 @@ data class Circle(val center: Point, val radius: Double) {
         return dis
     }
 
+    fun isBelong(point:Point) = this.center.distance(point) <= this.radius
+
     /**
      * Тривиальная
      *
@@ -153,13 +154,54 @@ class Line private constructor(val b: Double, val angle: Double) {
 
     constructor(point: Point, angle: Double) : this(point.y * Math.cos(angle) - point.x * Math.sin(angle), angle)
 
+
     /**
      * Средняя
      *
      * Найти точку пересечения с другой линией.
      * Для этого необходимо составить и решить систему из двух уравнений (каждое для своей прямой)
      */
-    fun crossPoint(other: Line): Point = TODO()
+    fun crossPoint(other: Line): Point {
+        //Hardest
+        if (this.angle == other.angle)
+            throw IllegalArgumentException("The lines are parallel")
+
+        val sinA = Math.sin(this.angle)
+        val sinB = Math.sin(other.angle)
+
+        val cosA = Math.cos(this.angle)
+        val cosB = Math.cos(other.angle)
+
+        val b1 = this.b * cosB
+        val b2 = other.b * cosA
+
+        val x: Double
+        val y: Double
+
+        when {
+            Math.abs(sinA) < 1E-15 -> { //this 0°
+                x = (b1 - b2) / (sinB * cosA)
+                y = (x * sinB + other.b) / cosB
+            }
+            Math.abs(cosA) < 1E-15 -> { //this 90°
+                x = -this.b / sinA
+                y = (x * sinB + other.b) / cosB
+            }
+            Math.abs(sinB) < 1E-15 -> { //other 0°
+                x = (b2 - b1) / (sinA * cosB)
+                y = (x * sinA + this.b) / cosA
+            }
+            Math.abs(cosB) < 1E-15 -> { //other 90°
+                x = -other.b / sinB
+                y = (x * sinA + this.b) / cosA
+            }
+            else -> {
+                x = (b2 - b1) / Math.sin(this.angle - other.angle)
+                y = (x * sinA + this.b) / cosA
+            }
+        }
+        return Point(x, y)
+    }
 
     override fun equals(other: Any?) = other is Line && angle == other.angle && b == other.b
 
@@ -177,7 +219,17 @@ class Line private constructor(val b: Double, val angle: Double) {
  *
  * Построить прямую по отрезку
  */
-fun lineBySegment(s: Segment): Line = TODO()
+fun lineBySegment(s: Segment): Line {
+    if (s.begin == s.end)
+        throw IllegalArgumentException("It is impossible to build the line at one point")
+
+    var angle = Math.atan((s.end.y - s.begin.y) / (s.end.x - s.begin.x))
+
+    if (angle < 0.0) angle += Math.PI
+
+    return Line(s.begin, angle)
+}
+
 
 /**
  * Средняя
@@ -191,7 +243,16 @@ fun lineByPoints(a: Point, b: Point): Line = lineBySegment(Segment(a, b))
  *
  * Построить серединный перпендикуляр по отрезку или по двум точкам
  */
-fun bisectorByPoints(a: Point, b: Point): Line = TODO()
+fun bisectorByPoints(a: Point, b: Point): Line {
+    val center = Point((a.x + b.x) / 2.0, (a.y + b.y) / 2.0)
+    var angle = lineByPoints(a, b).angle + Math.PI / 2.0
+    angle %= Math.PI
+
+    return Line(center, angle)
+}
+
+fun bisectorByPoints(s: Segment) = bisectorByPoints(s.begin, s.end)
+
 
 /**
  * Средняя
@@ -199,7 +260,32 @@ fun bisectorByPoints(a: Point, b: Point): Line = TODO()
  * Задан список из n окружностей на плоскости. Найти пару наименее удалённых из них.
  * Если в списке менее двух окружностей, бросить IllegalArgumentException
  */
-fun findNearestCirclePair(vararg circles: Circle): Pair<Circle, Circle> = TODO()
+fun findNearestCirclePair(vararg circles: Circle): Pair<Circle, Circle> {
+    val lastIndex = circles.lastIndex
+    if (lastIndex < 1)
+        throw IllegalArgumentException("")
+
+    var cFirst = circles[0]
+    var cSecond = circles[1]
+    var distance = cFirst.distance(cSecond)
+    var minDistance = distance
+    var pair = Pair(circles[0], circles[1])
+
+    for (i in 0 until lastIndex) {
+        cFirst = circles[i]
+        for (j in (i + 1)..lastIndex) {
+            cSecond = circles[j]
+            distance = cFirst.distance(cSecond)
+
+            if (distance < minDistance) {
+                pair = Pair(cFirst, cSecond)
+                minDistance = distance
+            }
+        }
+    }
+
+    return pair
+}
 
 /**
  * Сложная
@@ -210,7 +296,15 @@ fun findNearestCirclePair(vararg circles: Circle): Pair<Circle, Circle> = TODO()
  * (построить окружность по трём точкам, или
  * построить окружность, описанную вокруг треугольника - эквивалентная задача).
  */
-fun circleByThreePoints(a: Point, b: Point, c: Point): Circle = TODO()
+fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
+    val s1 = Segment(a, b)
+    val s2 = Segment(b, c)
+
+    val center = bisectorByPoints(s1).crossPoint(bisectorByPoints(s2))
+    val radius = a.distance(center)
+
+    return Circle(center, radius)
+}
 
 /**
  * Очень сложная
@@ -223,5 +317,41 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle = TODO()
  * три точки данного множества, либо иметь своим диаметром отрезок,
  * соединяющий две самые удалённые точки в данном множестве.
  */
-fun minContainingCircle(vararg points: Point): Circle = TODO()
+fun minContainingCircle(vararg points: Point): Circle {
+    if (points.isEmpty())
+        throw IllegalArgumentException("Array is empty")
 
+    var circleRes = Circle(points[0], Double.MAX_VALUE)
+
+    if (points.size == 2)
+        circleRes = circleByDiameter(Segment(points[0], points[1]))
+
+    for (i in 0..points.lastIndex - 2)
+        for (j in i + 1 until points.lastIndex)
+            for (k in j + 1..points.lastIndex) {
+                val a = points[i]
+                val b = points[j]
+                val c = points[k]
+
+                val circles = listOf(
+                        circleByThreePoints(a, b, c),
+                        circleByDiameter(Segment(a, b)),
+                        circleByDiameter(Segment(b, c)),
+                        circleByDiameter(Segment(c, a))
+                )
+
+                for (circle in circles) {
+                    var belongs = true
+
+                    for (point in points) {
+                        if (!circle.isBelong(point))
+                            belongs = false
+                    }
+
+                    if (belongs && circleRes.radius > circle.radius)
+                            circleRes = circle
+                }
+            }
+
+    return circleRes
+}
