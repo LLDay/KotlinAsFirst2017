@@ -81,12 +81,10 @@ data class Circle(val center: Point, val radius: Double) {
         return dis
     }
 
-    fun isBelong(point:Point) = this.center.distance(point) <= this.radius
-
     fun isBelongPoints(points: Array<out Point>): Boolean {
         //Все ли точки принадлежат окружности
         for (point in points)
-            if (!this.isBelong(point))
+            if (!this.contains(point))
                 return false
 
         return true
