@@ -317,7 +317,7 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
     var radius = 0.0
 
     if (lineBySegment(s1).isBelong(c)) {
-        //Три точки лежат на одной прямо0.0й
+        //Три точки лежат на одной прямой
         //Для следующей задачи
 
         val points = listOf(a, b, c)
