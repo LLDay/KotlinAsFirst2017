@@ -83,6 +83,15 @@ data class Circle(val center: Point, val radius: Double) {
 
     fun isBelong(point:Point) = this.center.distance(point) <= this.radius
 
+    fun isBelongPoints(points: Array<out Point>): Boolean {
+        //Все ли точки принадлежат окружности
+        for (point in points)
+            if (!this.isBelong(point))
+                return false
+
+        return true
+    }
+
     /**
      * Тривиальная
      *
@@ -188,19 +197,19 @@ class Line private constructor(val b: Double, val angle: Double) {
         val y: Double
 
         when {
-            Math.abs(sinA) < 1E-15 -> { //this 0°
+            this.angle == 0.0 -> { //this 0°
                 x = (b1 - b2) / (sinB * cosA)
                 y = (x * sinB + other.b) / cosB
             }
-            Math.abs(cosA) < 1E-15 -> { //this 90°
+            this.angle == Math.PI / 2.0 -> { //this 90°
                 x = -this.b / sinA
                 y = (x * sinB + other.b) / cosB
             }
-            Math.abs(sinB) < 1E-15 -> { //other 0°
+            other.angle == 0.0 -> { //other 0°
                 x = (b2 - b1) / (sinA * cosB)
                 y = (x * sinA + this.b) / cosA
             }
-            Math.abs(cosB) < 1E-15 -> { //other 90°
+           other.angle == Math.PI / 2.0 -> { //other 90°
                 x = -other.b / sinB
                 y = (x * sinA + this.b) / cosA
             }
@@ -209,8 +218,10 @@ class Line private constructor(val b: Double, val angle: Double) {
                 y = (x * sinA + this.b) / cosA
             }
         }
+
         return Point(x, y)
     }
+
 
     //Принадлежит ли точка прямой
     fun isBelong(point: Point) =
@@ -242,7 +253,6 @@ fun lineBySegment(s: Segment): Line {
 
     return Line(s.begin, angle)
 }
-
 
 /**
  * Средняя
@@ -338,14 +348,6 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
     return Circle(center, radius)
 }
 
-//Все ли точки принадлежат окружности
-fun isBelongAllPoints(circle: Circle, points: Array<out Point>) : Boolean{
-      for (point in points)
-        if (!circle.isBelong(point))
-            return false
-
-    return true
-}
 
 /**
  * Очень сложная
@@ -372,17 +374,16 @@ fun minContainingCircle(vararg points: Point): Circle {
             val a = points[i]
             val b = points[j]
 
-            val diameterCircle = circleByDiameter(a, b)
-
             for (k in j + 1..points.lastIndex) {
                 val triangleCircles = circleByThreePoints(a, b, points[k])
 
-                if (isBelongAllPoints(triangleCircles, points) &&
+                if (triangleCircles.isBelongPoints(points) &&
                         circleRes.radius > triangleCircles.radius)
                     circleRes = triangleCircles
             }
 
-            if (isBelongAllPoints(diameterCircle, points) &&
+            val diameterCircle = circleByDiameter(a, b)
+            if (diameterCircle.isBelongPoints(points) &&
                     circleRes.radius > diameterCircle.radius)
                 circleRes = diameterCircle
 
