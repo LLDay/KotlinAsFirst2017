@@ -298,7 +298,7 @@ fun firstDuplicateIndex(str: String): Int {
  * Все цены должны быть положительными
  */
 fun mostExpensive(description: String): String {
-    val tmpReg = Regex("""[^0-9]+ \d+(.?\d*)""") //один товар с ценой
+    val tmpReg = Regex("""[^ ]+ \d+(.?\d*)""") //один товар с ценой
     val checkFormat = Regex("""^($tmpReg; )*($tmpReg)$""")
     if (!description.matches(checkFormat))
         return ""

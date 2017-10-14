@@ -98,6 +98,13 @@ data class Segment(val begin: Point, val end: Point) {
     override fun equals(other: Any?) =
             other is Segment && (begin == other.begin && end == other.end || end == other.begin && begin == other.end)
 
+    fun center() : Point {
+        val x = (begin.x + end.x) / 2.0
+        val y = (begin.y + end.y) / 2.0
+
+        return Point(x, y)
+    }
+
     override fun hashCode() =
             begin.hashCode() + end.hashCode()
 }
@@ -140,6 +147,8 @@ fun circleByDiameter(diameter: Segment): Circle {
 
     return Circle(Point(x, y), radius)
 }
+
+fun circleByDiameter(a: Point, b: Point) = circleByDiameter(Segment(a, b))
 
 /**
  * Прямая, заданная точкой point и углом наклона angle (в радианах) по отношению к оси X.
@@ -202,6 +211,10 @@ class Line private constructor(val b: Double, val angle: Double) {
         }
         return Point(x, y)
     }
+
+    //Принадлежит ли точка прямой
+    fun isBelong(point: Point) =
+            point.y * Math.cos(this.angle) == point.x * Math.sin(this.angle) + this.b
 
     override fun equals(other: Any?) = other is Line && angle == other.angle && b == other.b
 
@@ -300,10 +313,38 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
     val s1 = Segment(a, b)
     val s2 = Segment(b, c)
 
-    val center = bisectorByPoints(s1).crossPoint(bisectorByPoints(s2))
-    val radius = a.distance(center)
+    var center = a
+    var radius = 0.0
 
+    if (lineBySegment(s1).isBelong(c)) {
+        //Три точки лежат на одной прямо0.0й
+        //Для следующей задачи
+
+        val points = listOf(a, b, c)
+
+        for (i in  0..1)
+            for (j in i+1..2) {
+                val distance = points[i].distance(points[j])
+                if (distance > radius) {
+                    center = Segment(points[i], points[j]).center()
+                    radius = distance
+                }
+            }
+    }
+    else {
+        center = bisectorByPoints(s1).crossPoint(bisectorByPoints(s2))
+        radius = a.distance(center)
+    }
     return Circle(center, radius)
+}
+
+//Все ли точки принадлежат окружности
+fun isBelongAllPoints(circle: Circle, points: Array<out Point>) : Boolean{
+      for (point in points)
+        if (!circle.isBelong(point))
+            return false
+
+    return true
 }
 
 /**
@@ -324,42 +365,28 @@ fun minContainingCircle(vararg points: Point): Circle {
     var circleRes = Circle(points[0], Double.MAX_VALUE)
 
     if (points.size == 2)
-        circleRes = circleByDiameter(Segment(points[0], points[1]))
+        circleRes = circleByDiameter(points[0], points[1])
 
-    for (i in 0..points.lastIndex - 2)
-        for (j in i + 1 until points.lastIndex) {
+    for (i in 0 until points.lastIndex)
+        for (j in i + 1..points.lastIndex) {
             val a = points[i]
             val b = points[j]
 
-            val circles = mutableListOf(circleByDiameter(Segment(a, b)), circleRes)
+            val diameterCircle = circleByDiameter(a, b)
 
             for (k in j + 1..points.lastIndex) {
-                val c = points[k]
-                circles[1] = circleByThreePoints(a, b, c)
+                val triangleCircles = circleByThreePoints(a, b, points[k])
 
-                for (circle in circles) {
-                    var belongs = true
-
-                    for (point in points)
-                        if (!circle.isBelong(point))
-                            belongs = false
-
-                    if (belongs && circleRes.radius > circle.radius)
-                        circleRes = circle
-                }
+                if (isBelongAllPoints(triangleCircles, points) &&
+                        circleRes.radius > triangleCircles.radius)
+                    circleRes = triangleCircles
             }
+
+            if (isBelongAllPoints(diameterCircle, points) &&
+                    circleRes.radius > diameterCircle.radius)
+                circleRes = diameterCircle
+
         }
-
-    //Отдельно рассматривается случай, так как в цикле он не достигается
-    val exclusionCircle = circleByDiameter(Segment(points[points.lastIndex - 1], points.last()))
-    var belongs = true
-    for (point in points)
-        if (!exclusionCircle.isBelong(point))
-            belongs = false
-
-    if (belongs && circleRes.radius > exclusionCircle.radius)
-        circleRes = exclusionCircle
-    //
 
     return circleRes
 }
