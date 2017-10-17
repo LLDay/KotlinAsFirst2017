@@ -214,7 +214,7 @@ fun bestHighJump(jumps: String): Int {
     var max = -1
 
     for (i in  0 until jList.lastIndex step 2) {
-        val attempts = Pair(jList[i],jList[i + 1])
+        val attempts = Pair(jList[i], jList[i + 1])
 
         if (!(attempts.first + attempts.second).matches(checkR))
             return -1
@@ -272,18 +272,15 @@ fun plusMinus(expression: String): Int {
 fun firstDuplicateIndex(str: String): Int {
     val words = str.split(' ')
 
-    var duplicateIndex = -1
     var currentIndex = 0
 
     for (i in 0 until words.lastIndex) {
-        if (words[i].toLowerCase() == words[i + 1].toLowerCase()) {
-            duplicateIndex = currentIndex
-            break
-        }
+        if (words[i].toLowerCase() == words[i + 1].toLowerCase())
+            return currentIndex
         currentIndex += words[i].length + 1
     }
 
-    return duplicateIndex
+    return -1
 }
 
 /**

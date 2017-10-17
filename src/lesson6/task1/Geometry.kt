@@ -4,6 +4,19 @@ package lesson6.task1
 
 import lesson1.task1.sqr
 
+fun precisionSin(angle: Double): Double {
+    if (angle == 0.0) return 0.0
+    if (angle == Math.PI / 2) return 1.0
+    return Math.sin(angle)
+}
+
+//Сos(PI/2) != 0...
+fun precisionCos(angle: Double): Double {
+    if (angle == 0.0) return 1.0
+    if (angle == Math.PI) return 0.0
+    return Math.cos(angle)
+}
+
 /**
  * Точка на плоскости
  */
@@ -81,7 +94,7 @@ data class Circle(val center: Point, val radius: Double) {
         return dis
     }
 
-    fun isBelongPoints(points: Array<out Point>): Boolean {
+    fun contains(points: Array<out Point>): Boolean {
         //Все ли точки принадлежат окружности
         for (point in points)
             if (!this.contains(point))
@@ -168,7 +181,7 @@ class Line private constructor(val b: Double, val angle: Double) {
         assert(angle >= 0 && angle < Math.PI) { "Incorrect line angle: $angle" }
     }
 
-    constructor(point: Point, angle: Double) : this(point.y * Math.cos(angle) - point.x * Math.sin(angle), angle)
+    constructor(point: Point, angle: Double) : this(point.y * precisionCos(angle) - point.x * precisionSin(angle), angle)
 
 
     /**
@@ -180,13 +193,13 @@ class Line private constructor(val b: Double, val angle: Double) {
     fun crossPoint(other: Line): Point {
         //Hardest
         if (this.angle == other.angle)
-            throw IllegalArgumentException("The lines are parallel")
+            throw IllegalArgumentException("$this and $other are parallel")
 
-        val sinA = Math.sin(this.angle)
-        val sinB = Math.sin(other.angle)
+        val sinA = precisionSin(this.angle)
+        val sinB = precisionSin(other.angle)
 
-        val cosA = Math.cos(this.angle)
-        val cosB = Math.cos(other.angle)
+        val cosA = precisionCos(this.angle)
+        val cosB = precisionCos(other.angle)
 
         val b1 = this.b * cosB
         val b2 = other.b * cosA
@@ -195,19 +208,27 @@ class Line private constructor(val b: Double, val angle: Double) {
         val y: Double
 
         when {
-            this.angle == 0.0 -> { //this 0°
+            this.angle == 0.0 && other.angle == Math.PI / 2 -> {
+                x = -other.b
+                y = this.b
+            }
+            this.angle == Math.PI / 2 && other.angle == 0.0 -> {
+                x = -this.b
+                y = other.b
+            }
+            this.angle == 0.0 -> {
                 x = (b1 - b2) / (sinB * cosA)
-                y = (x * sinB + other.b) / cosB
+                y = (x * sinA + this.b) / cosA
             }
-            this.angle == Math.PI / 2.0 -> { //this 90°
+            this.angle == Math.PI / 2.0 -> {
                 x = -this.b / sinA
-                y = (x * sinB + other.b) / cosB
+                y = (x * sinA + this.b) / cosA
             }
-            other.angle == 0.0 -> { //other 0°
+            other.angle == 0.0 -> {
                 x = (b2 - b1) / (sinA * cosB)
                 y = (x * sinA + this.b) / cosA
             }
-           other.angle == Math.PI / 2.0 -> { //other 90°
+            other.angle == Math.PI / 2.0 -> {
                 x = -other.b / sinB
                 y = (x * sinA + this.b) / cosA
             }
@@ -222,8 +243,8 @@ class Line private constructor(val b: Double, val angle: Double) {
 
 
     //Принадлежит ли точка прямой
-    fun isBelong(point: Point) =
-            point.y * Math.cos(this.angle) == point.x * Math.sin(this.angle) + this.b
+    fun contains(point: Point) =
+            point.y * precisionCos(this.angle) == point.x * precisionSin(this.angle) + this.b
 
     override fun equals(other: Any?) = other is Line && angle == other.angle && b == other.b
 
@@ -233,7 +254,13 @@ class Line private constructor(val b: Double, val angle: Double) {
         return result
     }
 
-    override fun toString() = "Line(${Math.cos(angle)} * y = ${Math.sin(angle)} * x + $b)"
+    override fun toString() : String{
+        return "Line(" + when (angle) {
+            Math.PI / 2 -> "x = ${-b}"
+            0.0 -> "y = $b"
+            else -> "y * ${Math.sin(angle)} = x * ${Math.cos(angle)} + $b"
+        } + ')'
+    }
 }
 
 /**
@@ -245,7 +272,12 @@ fun lineBySegment(s: Segment): Line {
     if (s.begin == s.end)
         throw IllegalArgumentException("It is impossible to build the line at one point")
 
-    var angle = Math.atan((s.end.y - s.begin.y) / (s.end.x - s.begin.x))
+    val x = s.end.x - s.begin.x
+    val y = s.end.y - s.begin.y
+
+    var angle = if (x != 0.0)
+        Math.atan(y / x)
+    else Math.PI / 2
 
     if (angle < 0.0) angle += Math.PI
 
@@ -275,9 +307,10 @@ fun bisectorByPoints(a: Point, b: Point): Line {
 fun bisectorByPoints(s: Segment) = bisectorByPoints(s.begin, s.end)
 
 
+
 /**
- * Средняя
  *
+ * Средняя
  * Задан список из n окружностей на плоскости. Найти пару наименее удалённых из них.
  * Если в списке менее двух окружностей, бросить IllegalArgumentException
  */
@@ -324,14 +357,14 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
     var center = a
     var radius = 0.0
 
-    if (lineBySegment(s1).isBelong(c)) {
+    if (lineBySegment(s1).contains(c)) {
         //Три точки лежат на одной прямой
         //Для следующей задачи
 
         val points = listOf(a, b, c)
 
         for (i in  0..1)
-            for (j in i+1..2) {
+            for (j in (i + 1)..2) {
                 val distance = points[i].distance(points[j])
                 if (distance > radius) {
                     center = Segment(points[i], points[j]).center()
@@ -346,6 +379,15 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
     return Circle(center, radius)
 }
 
+fun main(args: Array<String>) {
+    val p1 = Point(-1000.0, -1000.0)
+    val p2 = Point(-1000.0, -632.0)
+    val p3 = Point(-632.0, -632.0)
+
+    //println(Line(Point(2.0, 0.0), Math.PI / 2).crossPoint(Line(Point(0.0, 3.0), 0.0)))
+    println(circleByThreePoints(p1, p2, p3))
+
+}
 
 /**
  * Очень сложная
@@ -375,13 +417,13 @@ fun minContainingCircle(vararg points: Point): Circle {
             for (k in j + 1..points.lastIndex) {
                 val triangleCircles = circleByThreePoints(a, b, points[k])
 
-                if (triangleCircles.isBelongPoints(points) &&
+                if (triangleCircles.contains(points) &&
                         circleRes.radius > triangleCircles.radius)
                     circleRes = triangleCircles
             }
 
             val diameterCircle = circleByDiameter(a, b)
-            if (diameterCircle.isBelongPoints(points) &&
+            if (diameterCircle.contains(points) &&
                     circleRes.radius > diameterCircle.radius)
                 circleRes = diameterCircle
 
