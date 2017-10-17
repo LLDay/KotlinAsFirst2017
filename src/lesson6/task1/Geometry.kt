@@ -13,7 +13,7 @@ fun precisionSin(angle: Double): Double {
 //Сos(PI/2) != 0...
 fun precisionCos(angle: Double): Double {
     if (angle == 0.0) return 1.0
-    if (angle == Math.PI) return 0.0
+    if (angle == Math.PI / 2) return 0.0
     return Math.cos(angle)
 }
 
@@ -357,7 +357,7 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
     var center = a
     var radius = 0.0
 
-    if (lineBySegment(s1).contains(c)) {
+    if (a == b || lineBySegment(s1).contains(c)) {
         //Три точки лежат на одной прямой
         //Для следующей задачи
 
@@ -379,15 +379,6 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
     return Circle(center, radius)
 }
 
-fun main(args: Array<String>) {
-    val p1 = Point(-1000.0, -1000.0)
-    val p2 = Point(-1000.0, -632.0)
-    val p3 = Point(-632.0, -632.0)
-
-    //println(Line(Point(2.0, 0.0), Math.PI / 2).crossPoint(Line(Point(0.0, 3.0), 0.0)))
-    println(circleByThreePoints(p1, p2, p3))
-
-}
 
 /**
  * Очень сложная
