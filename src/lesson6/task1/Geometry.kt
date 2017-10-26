@@ -181,7 +181,8 @@ class Line private constructor(val b: Double, val angle: Double) {
         assert(angle >= 0 && angle < Math.PI) { "Incorrect line angle: $angle" }
     }
 
-    constructor(point: Point, angle: Double) : this(point.y * precisionCos(angle) - point.x * precisionSin(angle), angle)
+    constructor(point: Point, angle: Double) :
+            this(point.y * precisionCos(angle) - point.x * precisionSin(angle), angle)
 
 
     /**
@@ -201,9 +202,6 @@ class Line private constructor(val b: Double, val angle: Double) {
         val cosA = precisionCos(this.angle)
         val cosB = precisionCos(other.angle)
 
-        val b1 = this.b * cosB
-        val b2 = other.b * cosA
-
         val x: Double
         val y: Double
 
@@ -217,23 +215,23 @@ class Line private constructor(val b: Double, val angle: Double) {
                 y = other.b
             }
             this.angle == 0.0 -> {
-                x = (b1 - b2) / (sinB * cosA)
-                y = (x * sinA + this.b) / cosA
+                y = this.b
+                x = (y * cosB - other.b) / sinB
             }
             this.angle == Math.PI / 2.0 -> {
-                x = -this.b / sinA
-                y = (x * sinA + this.b) / cosA
+                x = -this.b
+                y = (x * sinB + other.b) / cosB
             }
             other.angle == 0.0 -> {
-                x = (b2 - b1) / (sinA * cosB)
-                y = (x * sinA + this.b) / cosA
+                y = other.b
+                x = (y * cosA - this.b) / sinA
             }
-            other.angle == Math.PI / 2.0 -> {
-                x = -other.b / sinB
+           other.angle == Math.PI / 2.0 -> {
+                x = -other.b
                 y = (x * sinA + this.b) / cosA
             }
             else -> {
-                x = (b2 - b1) / Math.sin(this.angle - other.angle)
+                x = (other.b * cosA - this.b * cosB) / Math.sin(this.angle - other.angle)
                 y = (x * sinA + this.b) / cosA
             }
         }
@@ -281,7 +279,7 @@ fun lineBySegment(s: Segment): Line {
 
     if (angle < 0.0) angle += Math.PI
 
-    return Line(s.begin, angle)
+    return Line(Point(x, y), angle)
 }
 
 /**
@@ -350,32 +348,40 @@ fun findNearestCirclePair(vararg circles: Circle): Pair<Circle, Circle> {
  * (построить окружность по трём точкам, или
  * построить окружность, описанную вокруг треугольника - эквивалентная задача).
  */
+//Общее решение для любых трех точек
+//Для вызова из minContainingCircle()
 fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
+    if (a == b || b == c)
+        return circleByPointsOnLine(a, b, c)
+
     val s1 = Segment(a, b)
     val s2 = Segment(b, c)
 
+    if (lineBySegment(s1).contains(c))
+        return circleByPointsOnLine(a, b, c)
+
+    val center = bisectorByPoints(s1).crossPoint(bisectorByPoints(s2))
+    val radius = a.distance(center)
+
+    return Circle(center, radius)
+}
+
+//Находит окружность по точкам, лежащим на одной прямой, как на диаметре двух удаленных
+//Или нулевая окржуность, если точки совпадают
+fun circleByPointsOnLine(a: Point, b: Point, c: Point) : Circle {
+    val points = listOf(a, b, c)
     var center = a
     var radius = 0.0
 
-    if (a == b || lineBySegment(s1).contains(c)) {
-        //Три точки лежат на одной прямой
-        //Для следующей задачи
-
-        val points = listOf(a, b, c)
-
-        for (i in  0..1)
-            for (j in (i + 1)..2) {
-                val distance = points[i].distance(points[j])
-                if (distance > radius) {
-                    center = Segment(points[i], points[j]).center()
-                    radius = distance
-                }
+    for (i in  0..1)
+        for (j in (i + 1)..2) {
+            val distance = points[i].distance(points[j])
+            if (distance > radius) {
+                center = Segment(points[i], points[j]).center()
+                radius = distance
             }
-    }
-    else {
-        center = bisectorByPoints(s1).crossPoint(bisectorByPoints(s2))
-        radius = a.distance(center)
-    }
+        }
+
     return Circle(center, radius)
 }
 
