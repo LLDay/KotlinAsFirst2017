@@ -69,12 +69,16 @@ fun square(notation: String): Square {
  * Пример: rookMoveNumber(Square(3, 1), Square(6, 3)) = 2
  * Ладья может пройти через клетку (3, 3) или через клетку (6, 1) к клетке (6, 3).
  */
-fun rookMoveNumber(start: Square, end: Square): Int =
-        when {
-            start == end -> 0
-            start.column == end.column || start.row == end.row -> 1
-            else -> 2
-        }
+fun rookMoveNumber(start: Square, end: Square): Int {
+    if (!start.inside() || !end.inside())
+        throw IllegalArgumentException("")
+
+    return when {
+        start == end -> 0
+        start.column == end.column || start.row == end.row -> 1
+        else -> 2
+    }
+}
 
 /**
  * Средняя
@@ -124,16 +128,12 @@ fun bishopMoveNumber(start: Square, end: Square): Int {
     if (!start.inside() || !end.inside())
         throw IllegalArgumentException("")
 
-    if (start.row * start.column % 2 != end.row * end.column % 2)
-        return -1
-
-    if (start == end)
-        return 0
-
-    if (Math.abs(start.row - end.row) == Math.abs(start.column - end.column))
-        return 1
-
-    return 2
+    return when {
+        (start.row + start.column) % 2 != (end.row + end.column) % 2 -> -1
+        start == end -> 0
+        Math.abs(start.row - end.row) == Math.abs(start.column - end.column) -> 1
+        else -> 2
+    }
 }
 
 /**

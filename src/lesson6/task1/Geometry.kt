@@ -4,6 +4,7 @@ package lesson6.task1
 
 import lesson1.task1.sqr
 
+
 fun precisionSin(angle: Double): Double {
     if (angle == 0.0) return 0.0
     if (angle == Math.PI / 2) return 1.0
@@ -16,6 +17,8 @@ fun precisionCos(angle: Double): Double {
     if (angle == Math.PI / 2) return 0.0
     return Math.cos(angle)
 }
+fun isRoughly(a: Double, b: Double) = Math.abs(a - b) < 1E-15
+
 
 /**
  * Точка на плоскости
@@ -30,7 +33,8 @@ data class Point(val x: Double, val y: Double) {
 }
 
 /**
- * Треугольник, заданный тремя точками (a, b, c, см. constructor ниже).
+ * Треугольник, заданный
+ тремя точками (a, b, c, см. constructor ниже).
  * Эти три точки хранятся в множестве points, их порядок не имеет значения.
  */
 class Triangle private constructor(private val points: Set<Point>) {
@@ -182,7 +186,11 @@ class Line private constructor(val b: Double, val angle: Double) {
     }
 
     constructor(point: Point, angle: Double) :
-            this(point.y * precisionCos(angle) - point.x * precisionSin(angle), angle)
+            this(
+                    if (isRoughly(Math.sin(angle), Math.cos(angle))) 0.0
+                    else point.y * precisionCos(angle) - point.x * precisionSin(angle),
+                    angle
+            )
 
 
     /**
@@ -206,7 +214,7 @@ class Line private constructor(val b: Double, val angle: Double) {
         val y: Double
 
         when {
-            this.angle == 0.0 && other.angle == Math.PI / 2 -> {
+            this.angle == 0.0 && other.angle ==Math.PI / 2 -> {
                 x = -other.b
                 y = this.b
             }
@@ -218,7 +226,7 @@ class Line private constructor(val b: Double, val angle: Double) {
                 y = this.b
                 x = (y * cosB - other.b) / sinB
             }
-            this.angle == Math.PI / 2.0 -> {
+            this.angle == Math.PI / 2 -> {
                 x = -this.b
                 y = (x * sinB + other.b) / cosB
             }
@@ -226,7 +234,7 @@ class Line private constructor(val b: Double, val angle: Double) {
                 y = other.b
                 x = (y * cosA - this.b) / sinA
             }
-           other.angle == Math.PI / 2.0 -> {
+            other.angle == Math.PI / 2 -> {
                 x = -other.b
                 y = (x * sinA + this.b) / cosA
             }
@@ -241,8 +249,12 @@ class Line private constructor(val b: Double, val angle: Double) {
 
 
     //Принадлежит ли точка прямой
-    fun contains(point: Point) =
-            point.y * precisionCos(this.angle) == point.x * precisionSin(this.angle) + this.b
+    fun contains(point: Point) : Boolean {
+        val left = point.y * precisionCos(this.angle)
+        val right = point.x * precisionSin(this.angle) + this.b
+
+        return isRoughly(left, right)
+    }
 
     override fun equals(other: Any?) = other is Line && angle == other.angle && b == other.b
 
@@ -279,7 +291,7 @@ fun lineBySegment(s: Segment): Line {
 
     if (angle < 0.0) angle += Math.PI
 
-    return Line(Point(x, y), angle)
+    return Line(s.center(), angle)
 }
 
 /**
@@ -289,17 +301,17 @@ fun lineBySegment(s: Segment): Line {
  */
 fun lineByPoints(a: Point, b: Point): Line = lineBySegment(Segment(a, b))
 
+
 /**
  * Сложная
  *
  * Построить серединный перпендикуляр по отрезку или по двум точкам
  */
 fun bisectorByPoints(a: Point, b: Point): Line {
-    val center = Point((a.x + b.x) / 2.0, (a.y + b.y) / 2.0)
     var angle = lineByPoints(a, b).angle + Math.PI / 2.0
     angle %= Math.PI
 
-    return Line(center, angle)
+    return Line(Segment(a, b).center(), angle)
 }
 
 fun bisectorByPoints(s: Segment) = bisectorByPoints(s.begin, s.end)
