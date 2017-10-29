@@ -17,8 +17,8 @@ fun precisionCos(angle: Double): Double {
     if (angle == Math.PI / 2) return 0.0
     return Math.cos(angle)
 }
-fun isRoughly(a: Double, b: Double) = Math.abs(a - b) < 1E-15
 
+fun isRoughly(a: Double, b: Double) = Math.abs(a - b) < 1E-15
 
 /**
  * Точка на плоскости
@@ -186,11 +186,7 @@ class Line private constructor(val b: Double, val angle: Double) {
     }
 
     constructor(point: Point, angle: Double) :
-            this(
-                    if (isRoughly(Math.sin(angle), Math.cos(angle))) 0.0
-                    else point.y * precisionCos(angle) - point.x * precisionSin(angle),
-                    angle
-            )
+            this(point.y * precisionCos(angle) - point.x * precisionSin(angle), angle)
 
 
     /**
@@ -214,7 +210,7 @@ class Line private constructor(val b: Double, val angle: Double) {
         val y: Double
 
         when {
-            this.angle == 0.0 && other.angle ==Math.PI / 2 -> {
+            this.angle == 0.0 && other.angle == Math.PI / 2 -> {
                 x = -other.b
                 y = this.b
             }
@@ -363,14 +359,17 @@ fun findNearestCirclePair(vararg circles: Circle): Pair<Circle, Circle> {
 //Общее решение для любых трех точек
 //Для вызова из minContainingCircle()
 fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
-    if (a == b || b == c)
-        return circleByPointsOnLine(a, b, c)
-
     val s1 = Segment(a, b)
     val s2 = Segment(b, c)
 
-    if (lineBySegment(s1).contains(c))
+    try {
+        //Lines are parallel
+        //Points are equals
+        bisectorByPoints(s1).crossPoint(bisectorByPoints(s2))
+    }
+    catch(e: Exception) {
         return circleByPointsOnLine(a, b, c)
+    }
 
     val center = bisectorByPoints(s1).crossPoint(bisectorByPoints(s2))
     val radius = a.distance(center)
@@ -435,8 +434,26 @@ fun minContainingCircle(vararg points: Point): Circle {
             if (diameterCircle.contains(points) &&
                     circleRes.radius > diameterCircle.radius)
                 circleRes = diameterCircle
-
         }
 
     return circleRes
+}
+
+fun main(args: Array<String>) {
+    val a = Point(-1000.0, -1000.0)
+    val b = Point(-999.956594288637, -1000.0)
+    val c = Point(-632.0, -999.4788911610412)
+    val d = Point(-999.1032991184695, -632.0)
+    val e = Point(-999.5712578601881, -1000.0)
+    val f = Point(-999.5996418297502, -632.0)
+    val g = Point(-632.0, -999.7182227179965)
+    val h = Point(-1000.0, -999.3926173975817)
+    val k = Point(-632.0, -1000.0)
+    val m = Point(-999.8693990196878, -999.5193318270076)
+    val n = Point(-1000.0, -999.0010473830156)
+    val o = Point(-632.0, -1000.0)
+    val p = Point(-632.0, -999.0270090124668)
+    val r = Point(-999.4152584272474, -1000.0)
+
+    println(minContainingCircle(a, b, c, d, e, f, g, h, k, m, n, o, p, r))
 }
