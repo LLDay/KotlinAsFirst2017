@@ -6,19 +6,20 @@ import lesson1.task1.sqr
 
 
 fun precisionSin(angle: Double): Double {
-    if (angle == 0.0) return 0.0
-    if (angle == Math.PI / 2) return 1.0
+    if (isRoughly(angle % Math.PI, 0.0)) return 0.0
+    if (isRoughly(angle % Math.PI, Math.PI / 2)) return 1.0
     return Math.sin(angle)
 }
 
 //Сos(PI/2) != 0...
 fun precisionCos(angle: Double): Double {
-    if (angle == 0.0) return 1.0
-    if (angle == Math.PI / 2) return 0.0
+    if (isRoughly(angle % Math.PI, 0.0)) return 1.0
+    if (isRoughly(angle % Math.PI, Math.PI / 2)) return 0.0
     return Math.cos(angle)
 }
 
-fun isRoughly(a: Double, b: Double) = Math.abs(a - b) < 1E-15
+fun isRoughly(a: Double, b: Double, precision: Int = 15)
+        = Math.abs(a - b) < Math.pow(10.0, -precision.toDouble())
 
 /**
  * Точка на плоскости
@@ -112,7 +113,10 @@ data class Circle(val center: Point, val radius: Double) {
      *
      * Вернуть true, если и только если окружность содержит данную точку НА себе или ВНУТРИ себя
      */
-    fun contains(p: Point): Boolean = center.distance(p) <= radius
+    fun contains(p: Point): Boolean {
+        val distance = center.distance(p)
+        return distance < radius || isRoughly(distance, radius, 12)
+    }
 }
 
 /**
@@ -196,7 +200,6 @@ class Line private constructor(val b: Double, val angle: Double) {
      * Для этого необходимо составить и решить систему из двух уравнений (каждое для своей прямой)
      */
     fun crossPoint(other: Line): Point {
-        //Hardest
         if (this.angle == other.angle)
             throw IllegalArgumentException("$this and $other are parallel")
 
@@ -210,27 +213,27 @@ class Line private constructor(val b: Double, val angle: Double) {
         val y: Double
 
         when {
-            this.angle == 0.0 && other.angle == Math.PI / 2 -> {
+            sinA == 0.0 && sinB == 1.0 -> {
                 x = -other.b
                 y = this.b
             }
-            this.angle == Math.PI / 2 && other.angle == 0.0 -> {
+            sinA == 1.0 && sinB == 0.0 -> {
                 x = -this.b
                 y = other.b
             }
-            this.angle == 0.0 -> {
+            sinA == 0.0 -> {
                 y = this.b
                 x = (y * cosB - other.b) / sinB
             }
-            this.angle == Math.PI / 2 -> {
+            sinA == 1.0 -> {
                 x = -this.b
                 y = (x * sinB + other.b) / cosB
             }
-            other.angle == 0.0 -> {
+            sinB == 0.0 -> {
                 y = other.b
                 x = (y * cosA - this.b) / sinA
             }
-            other.angle == Math.PI / 2 -> {
+            sinB == 1.0 -> {
                 x = -other.b
                 y = (x * sinA + this.b) / cosA
             }
@@ -243,14 +246,6 @@ class Line private constructor(val b: Double, val angle: Double) {
         return Point(x, y)
     }
 
-
-    //Принадлежит ли точка прямой
-    fun contains(point: Point) : Boolean {
-        val left = point.y * precisionCos(this.angle)
-        val right = point.x * precisionSin(this.angle) + this.b
-
-        return isRoughly(left, right)
-    }
 
     override fun equals(other: Any?) = other is Line && angle == other.angle && b == other.b
 
@@ -378,7 +373,7 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
 }
 
 //Находит окружность по точкам, лежащим на одной прямой, как на диаметре двух удаленных
-//Или нулевая окржуность, если точки совпадают
+//Или нулевая окружность, если точки совпадают
 fun circleByPointsOnLine(a: Point, b: Point, c: Point) : Circle {
     val points = listOf(a, b, c)
     var center = a
@@ -423,11 +418,11 @@ fun minContainingCircle(vararg points: Point): Circle {
             val b = points[j]
 
             for (k in j + 1..points.lastIndex) {
-                val triangleCircles = circleByThreePoints(a, b, points[k])
+                val triangleCircle = circleByThreePoints(a, b, points[k])
 
-                if (triangleCircles.contains(points) &&
-                        circleRes.radius > triangleCircles.radius)
-                    circleRes = triangleCircles
+                if (triangleCircle.contains(points) &&
+                        circleRes.radius > triangleCircle.radius)
+                    circleRes = triangleCircle
             }
 
             val diameterCircle = circleByDiameter(a, b)
@@ -437,23 +432,4 @@ fun minContainingCircle(vararg points: Point): Circle {
         }
 
     return circleRes
-}
-
-fun main(args: Array<String>) {
-    val a = Point(-1000.0, -1000.0)
-    val b = Point(-999.956594288637, -1000.0)
-    val c = Point(-632.0, -999.4788911610412)
-    val d = Point(-999.1032991184695, -632.0)
-    val e = Point(-999.5712578601881, -1000.0)
-    val f = Point(-999.5996418297502, -632.0)
-    val g = Point(-632.0, -999.7182227179965)
-    val h = Point(-1000.0, -999.3926173975817)
-    val k = Point(-632.0, -1000.0)
-    val m = Point(-999.8693990196878, -999.5193318270076)
-    val n = Point(-1000.0, -999.0010473830156)
-    val o = Point(-632.0, -1000.0)
-    val p = Point(-632.0, -999.0270090124668)
-    val r = Point(-999.4152584272474, -1000.0)
-
-    println(minContainingCircle(a, b, c, d, e, f, g, h, k, m, n, o, p, r))
 }
