@@ -115,7 +115,7 @@ data class Circle(val center: Point, val radius: Double) {
      */
     fun contains(p: Point): Boolean {
         val distance = center.distance(p)
-        return distance < radius || isRoughly(distance, radius, 12)
+        return distance < radius || isRoughly(distance, radius, 10)
     }
 }
 
@@ -419,7 +419,6 @@ fun minContainingCircle(vararg points: Point): Circle {
 
             for (k in j + 1..points.lastIndex) {
                 val triangleCircle = circleByThreePoints(a, b, points[k])
-
                 if (triangleCircle.contains(points) &&
                         circleRes.radius > triangleCircle.radius)
                     circleRes = triangleCircle
