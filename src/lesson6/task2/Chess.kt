@@ -154,7 +154,25 @@ fun bishopMoveNumber(start: Square, end: Square): Int {
  *          bishopTrajectory(Square(1, 3), Square(6, 8)) = listOf(Square(1, 3), Square(6, 8))
  * Если возможно несколько вариантов самой быстрой траектории, вернуть любой из них.
  */
-fun bishopTrajectory(start: Square, end: Square): List<Square> = TODO()
+fun bishopTrajectory(start: Square, end: Square): List<Square> =
+        when(bishopMoveNumber(start, end)) {
+            2 -> {
+                val upRight = ((end.column + end.row) - (start.column + start.row)) / 2
+                val downRight = ((end.column - end.row) - (start.column - start.row)) / 2
+
+                val wayUp = Square(start.column + upRight, start.row + upRight) //upRight
+                val wayDown = Square(start.column + downRight, start.row - downRight) //downRight
+
+                val middle =
+                        if (wayUp.inside()) wayUp
+                        else wayDown
+
+                listOf(start, middle, end)
+            }
+            1 -> listOf(start, end)
+            0 -> listOf(start)
+            else -> listOf()
+        }
 
 /**
  * Средняя
@@ -176,7 +194,9 @@ fun bishopTrajectory(start: Square, end: Square): List<Square> = TODO()
  * Пример: kingMoveNumber(Square(3, 1), Square(6, 3)) = 3.
  * Король может последовательно пройти через клетки (4, 2) и (5, 2) к клетке (6, 3).
  */
-fun kingMoveNumber(start: Square, end: Square): Int = TODO()
+fun kingMoveNumber(start: Square, end: Square): Int =
+        Math.max(Math.abs(start.column - end.column), Math.abs(start.row - end.row))
+
 
 /**
  * Сложная
@@ -192,7 +212,19 @@ fun kingMoveNumber(start: Square, end: Square): Int = TODO()
  *          kingTrajectory(Square(3, 5), Square(6, 2)) = listOf(Square(3, 5), Square(4, 4), Square(5, 3), Square(6, 2))
  * Если возможно несколько вариантов самой быстрой траектории, вернуть любой из них.
  */
-fun kingTrajectory(start: Square, end: Square): List<Square> = TODO()
+fun kingTrajectory(start: Square, end: Square): List<Square> {
+    val list = mutableListOf(start)
+    var column = start.column
+    var row = start.row
+    while (end.column != column || end.row != row) {
+        if (column > end.column) column--
+        if (column < end.column) column++
+        if (row > end.row) row--
+        if (row < end.row) row++
+        list.add(Square(column, row))
+    }
+    return list
+}
 
 /**
  * Сложная
@@ -217,7 +249,24 @@ fun kingTrajectory(start: Square, end: Square): List<Square> = TODO()
  * Пример: knightMoveNumber(Square(3, 1), Square(6, 3)) = 3.
  * Конь может последовательно пройти через клетки (5, 2) и (4, 4) к клетке (6, 3).
  */
-fun knightMoveNumber(start: Square, end: Square): Int = TODO()
+fun knightMoveNumber(start: Square, end: Square) = knightTrajectory(start, end).lastIndex
+
+fun moveListKnight(place: Square) : List<Square> {
+    val list = mutableListOf<Square>()
+    list.add(Square(place.column + 2, place.row + 1))
+    list.add(Square(place.column + 2, place.row - 1))
+    list.add(Square(place.column - 2, place.row + 1))
+    list.add(Square(place.column - 2, place.row - 1))
+    list.add(Square(place.column + 1, place.row + 2))
+    list.add(Square(place.column + 1, place.row - 2))
+    list.add(Square(place.column - 1, place.row + 2))
+    list.add(Square(place.column - 1, place.row - 2))
+    return list.filter { it.inside() }
+}
+
+fun lineDistance(start: Square, end: Square) =
+        Math.abs(start.column - end.column) + Math.abs(start.row - end.row)
+
 
 /**
  * Очень сложная
@@ -239,4 +288,44 @@ fun knightMoveNumber(start: Square, end: Square): Int = TODO()
  *
  * Если возможно несколько вариантов самой быстрой траектории, вернуть любой из них.
  */
-fun knightTrajectory(start: Square, end: Square): List<Square> = TODO()
+fun knightTrajectory(start: Square, end: Square, step: Int = 0) : List<Square> {
+    if (step > 7 || start == end)
+        return listOf(start)
+
+    val moveList = moveListKnight(start)
+    val minList = mutableListOf<Square>()
+
+    //optimization
+    if (moveList.size <= 4)
+        minList.addAll(0, moveList)
+    else {
+        var middleDistance = 0
+
+        for (el in moveList)
+            middleDistance += lineDistance(el, end)
+        middleDistance = middleDistance / moveList.size + 1
+
+        for (el in moveList)
+            if (lineDistance(el, end) < middleDistance)
+                minList.add(el)
+    }
+    //optimization
+
+    val result = mutableListOf<Square>()
+    var minCount = Int.MAX_VALUE
+
+    for (el in minList) {
+        //recursive descent
+        val listTmp = knightTrajectory(el, end, step + 1)
+        if (minCount > listTmp.size) {
+            result.clear()
+            result.add(start)
+            result.addAll(1, listTmp)
+            minCount = listTmp.size
+        }
+    }
+
+    return result
+}
+
+
