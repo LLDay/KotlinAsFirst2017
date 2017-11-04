@@ -1,6 +1,7 @@
 @file:Suppress("UNUSED_PARAMETER", "unused")
 package lesson7.task1
 
+
 /**
  * Ячейка матрицы: row = ряд, column = колонка
  */
@@ -38,32 +39,50 @@ interface Matrix<E> {
  * height = высота, width = ширина, e = чем заполнить элементы.
  * Бросить исключение IllegalArgumentException, если height или width <= 0.
  */
-fun <E> createMatrix(height: Int, width: Int, e: E): Matrix<E> = TODO()
+fun <E> createMatrix(height: Int, width: Int, e: E): Matrix<E> = MatrixImpl(height, width, e)
 
 /**
  * Средняя сложность
  *
  * Реализация интерфейса "матрица"
  */
-class MatrixImpl<E> : Matrix<E> {
-    override val height: Int = TODO()
+class MatrixImpl<E> (height: Int, width: Int, elem: E) : Matrix<E> {
+    private val matrix = emptyList<MutableList<E>>().toMutableList()
+    init {
+        if (height <= 0 || width <= 0)
+            throw IllegalArgumentException("")
 
-    override val width: Int = TODO()
+        for (i in 0 until height) {
+            val column = mutableListOf<E>()
+            for (j in 0 until width)
+                column.add(elem)
+            this.matrix.add(column)
+        }
+    }
 
-    override fun get(row: Int, column: Int): E  = TODO()
+    override val height: Int = matrix.size
 
-    override fun get(cell: Cell): E  = TODO()
+    override val width: Int = matrix[0].size
+
+    override fun get(row: Int, column: Int): E = matrix[row][column]
+
+    override fun get(cell: Cell): E = get(cell.row, cell.column)
 
     override fun set(row: Int, column: Int, value: E) {
-        TODO()
+        matrix[row][column] = value
     }
 
-    override fun set(cell: Cell, value: E) {
-        TODO()
+    override fun set(cell: Cell, value: E) = set(cell.row, cell.column, value)
+
+    override fun equals(other: Any?): Boolean = other is MatrixImpl<*> && other.matrix == this.matrix
+
+    override fun toString() = "height = ${this.height} width = ${this.width}"
+
+    override fun hashCode(): Int {
+        var result = matrix.hashCode()
+        result = 31 * result + height
+        result = 31 * result + width
+        return result
     }
-
-    override fun equals(other: Any?) = TODO()
-
-    override fun toString(): String = TODO()
 }
 
