@@ -339,7 +339,7 @@ fun knightTrajectory(start: Square, end: Square, step: Int) : List<Square> {
     if (step > 7 || start == end)
         return listOf(start)
 
-    //optimization x4
+    //optimization
     if (moveListKnight(start).contains(end))
         return listOf(start, end)
 
