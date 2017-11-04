@@ -18,8 +18,8 @@ fun precisionCos(angle: Double): Double {
     return Math.cos(angle)
 }
 
-fun isRoughly(a: Double, b: Double, precision: Int = 15)
-        = Math.abs(a -b) <= Math.pow(10.0, -precision.toDouble())
+fun isRoughly(a: Double, b: Double, precision: Int = 15) =
+        Math.abs(a -b) <= Math.pow(10.0, -precision.toDouble())
 
 
 /**

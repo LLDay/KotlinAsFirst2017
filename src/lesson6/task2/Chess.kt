@@ -280,7 +280,7 @@ fun equalDistance(sq1: Square, sq2: Square, end: Square) =
 
 fun notEqualListDistance(start: Square, end: Square) : List<Square> {
     //Список нессимитричных клеток, относительно конечной клетки
-    //Отсортированы по линейной длинне до клетки end
+    //Отсортированы по линейной длине до клетки end
     val moveList = knightMoveList(start)
     val resultList = mutableListOf<Square>()
 
@@ -343,7 +343,7 @@ fun knightTrajectory(start: Square, end: Square, step: Int) : List<Square> {
         return listOf(start, end)
 
     val tmpList = notEqualListDistance(start, end)
-    val minList = tmpList.subList(0, Math.min(3, tmpList.size))
+    val minList = tmpList.subList(0, Math.min(Math.min(tmpList.size / 2 + 1, tmpList.size), 3))
     //!optimization
 
     val result = mutableListOf<Square>()
