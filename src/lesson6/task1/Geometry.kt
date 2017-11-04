@@ -19,7 +19,8 @@ fun precisionCos(angle: Double): Double {
 }
 
 fun isRoughly(a: Double, b: Double, precision: Int = 15)
-        = Math.abs(a - b) < Math.pow(10.0, -precision.toDouble())
+        = Math.abs(a -b) <= Math.pow(10.0, -precision.toDouble())
+
 
 /**
  * Точка на плоскости
@@ -115,7 +116,7 @@ data class Circle(val center: Point, val radius: Double) {
      */
     fun contains(p: Point): Boolean {
         val distance = center.distance(p)
-        return distance < radius || isRoughly(distance, radius, 10)
+        return distance < radius || isRoughly(distance, radius, 8)
     }
 }
 

@@ -1,7 +1,6 @@
 @file:Suppress("UNUSED_PARAMETER")
 package lesson6.task2
 
-import java.lang.Math.abs
 
 /**
  * Клетка шахматной доски. Шахматная доска квадратная и имеет 8 х 8 клеток.
@@ -257,7 +256,7 @@ fun kingTrajectory(start: Square, end: Square): List<Square> {
  */
 fun knightMoveNumber(start: Square, end: Square) = knightTrajectory(start, end).lastIndex
 
-fun moveListKnight(place: Square) : List<Square> {
+fun knightMoveList(place: Square) : List<Square> {
     val list = mutableListOf<Square>()
     list.add(Square(place.column + 2, place.row + 1))
     list.add(Square(place.column + 2, place.row - 1))
@@ -282,7 +281,7 @@ fun equalDistance(sq1: Square, sq2: Square, end: Square) =
 fun notEqualListDistance(start: Square, end: Square) : List<Square> {
     //Список нессимитричных клеток, относительно конечной клетки
     //Отсортированы по линейной длинне до клетки end
-    val moveList = moveListKnight(start)
+    val moveList = knightMoveList(start)
     val resultList = mutableListOf<Square>()
 
     for (elMove in moveList) {
@@ -340,7 +339,7 @@ fun knightTrajectory(start: Square, end: Square, step: Int) : List<Square> {
         return listOf(start)
 
     //optimization
-    if (moveListKnight(start).contains(end))
+    if (knightMoveList(start).contains(end))
         return listOf(start, end)
 
     val tmpList = notEqualListDistance(start, end)
