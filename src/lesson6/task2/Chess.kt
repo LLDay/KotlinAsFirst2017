@@ -287,6 +287,7 @@ fun notEqualListDistance(start: Square, end: Square) : List<Square> {
 
     for (elMove in moveList) {
         var isEqual = false
+
         for (elRes in resultList) {
             if (equalDistance(elMove, elRes, end)) {
                 isEqual = true
@@ -300,7 +301,7 @@ fun notEqualListDistance(start: Square, end: Square) : List<Square> {
     }
 
     return resultList
-            .map {Pair(it, lineDistance(it, end))}
+            .map { Pair(it, lineDistance(it, end)) }
             .sortedBy { it.second }
             .map { it.first }
 }
