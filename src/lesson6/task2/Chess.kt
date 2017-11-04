@@ -344,7 +344,7 @@ fun knightTrajectory(start: Square, end: Square, step: Int) : List<Square> {
         return listOf(start, end)
 
     val tmpList = notEqualListDistance(start, end)
-    val minList = tmpList.subList(0, Math.min(2, tmpList.size ))
+    val minList = tmpList.subList(0, Math.min(3, tmpList.size ))
     //!optimization
 
     val result = mutableListOf<Square>()
