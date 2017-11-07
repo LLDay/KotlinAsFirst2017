@@ -204,37 +204,37 @@ class Line private constructor(val b: Double, val angle: Double) {
         if (this.angle == other.angle)
             throw IllegalArgumentException("$this and $other are parallel")
 
-        val sinA = precisionSin(this.angle)
-        val sinB = precisionSin(other.angle)
+        val sinA = Math.sin(this.angle)
+        val sinB = Math.sin(other.angle)
 
-        val cosA = precisionCos(this.angle)
-        val cosB = precisionCos(other.angle)
+        val cosA = Math.cos(this.angle)
+        val cosB = Math.cos(other.angle)
 
         val x: Double
         val y: Double
 
         when {
-            sinA == 0.0 && sinB == 1.0 -> {
+            isRoughly(sinA,0.0) && isRoughly(sinB, 1.0) -> {
                 x = -other.b
                 y = this.b
             }
-            sinA == 1.0 && sinB == 0.0 -> {
+            isRoughly(sinA,1.0) && isRoughly(sinB, 0.0) -> {
                 x = -this.b
                 y = other.b
             }
-            sinA == 0.0 -> {
+            isRoughly(sinA,0.0) -> {
                 y = this.b
                 x = (y * cosB - other.b) / sinB
             }
-            sinA == 1.0 -> {
+            isRoughly(sinA,1.0) -> {
                 x = -this.b
                 y = (x * sinB + other.b) / cosB
             }
-            sinB == 0.0 -> {
+            isRoughly(sinB, 0.0) -> {
                 y = other.b
                 x = (y * cosA - this.b) / sinA
             }
-            sinB == 1.0 -> {
+            isRoughly(sinB, 1.0) -> {
                 x = -other.b
                 y = (x * sinA + this.b) / cosA
             }

@@ -273,40 +273,6 @@ fun lineDistance(start: Square, end: Square) =
         Math.abs(start.column - end.column) + Math.abs(start.row - end.row)
 
 
-fun equalDistance(sq1: Square, sq2: Square, end: Square) =
-        lineDistance(sq1, end) == lineDistance(sq2, end) &&
-                kingMoveNumber(sq1, end) == kingMoveNumber(sq2, end)
-
-
-fun notEqualListDistance(start: Square, end: Square) : List<Square> {
-    //Список нессимитричных клеток, относительно конечной клетки
-    //Отсортированы по линейной длине до клетки end
-    val moveList = knightMoveList(start)
-    val resultList = mutableListOf<Square>()
-
-    for (elMove in moveList) {
-        var isEqual = false
-
-        for (elRes in resultList) {
-            if (equalDistance(elMove, elRes, end)) {
-                isEqual = true
-                break
-            }
-        }
-
-        if (!isEqual) {
-            resultList.add(elMove)
-        }
-    }
-
-    return resultList
-            .map { Pair(it, lineDistance(it, end)) }
-            .sortedBy { it.second }
-            .map { it.first }
-}
-
-
-
 /**
  * Очень сложная
  *
@@ -342,12 +308,13 @@ fun knightTrajectory(start: Square, end: Square, step: Int) : List<Square> {
     if (knightMoveList(start).contains(end))
         return listOf(start, end)
 
-    val tmpList = notEqualListDistance(start, end)
+    val tmpList = knightMoveList(start).sortedBy { lineDistance(it, end) }
     val minList = tmpList.subList(0, Math.min(tmpList.size, 3))
     //!optimization
 
     val result = mutableListOf<Square>()
     var minCount = Int.MAX_VALUE
+
 
     for (el in minList) {
         //recursive descent
