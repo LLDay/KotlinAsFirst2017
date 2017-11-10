@@ -297,28 +297,24 @@ fun knightTrajectory(start: Square, end: Square) : List<Square> {
     if (!start.inside() || !end.inside())
         throw IllegalArgumentException("")
 
-    return knightTrajectory(start, end, 0)
+    return knightTrajectory(start, end, 0, 8)
 }
 
-fun knightTrajectory(start: Square, end: Square, step: Int) : List<Square> {
-    if (step > 7 || start == end)
+fun knightTrajectory(start: Square, end: Square, step: Int, maxStep: Int) : List<Square> {
+    if (step > maxStep || start == end)
         return listOf(start)
 
-    //optimization
     if (knightMoveList(start).contains(end))
         return listOf(start, end)
 
-    val tmpList = knightMoveList(start).sortedBy { lineDistance(it, end) }
-    val minList = tmpList.subList(0, Math.min(tmpList.size, 3))
-    //!optimization
+    val minList = knightMoveList(start).sortedBy { lineDistance(it, end) }
 
     val result = mutableListOf<Square>()
     var minCount = Int.MAX_VALUE
 
 
     for (el in minList) {
-        //recursive descent
-        val listTmp = knightTrajectory(el, end, step + 1)
+        val listTmp = knightTrajectory(el, end, step + 1, Math.min(minCount, maxStep))
         if (minCount > listTmp.size) {
             result.clear()
             result.add(start)
