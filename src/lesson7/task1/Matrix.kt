@@ -1,7 +1,6 @@
 @file:Suppress("UNUSED_PARAMETER", "unused")
 package lesson7.task1
 
-
 /**
  * Ячейка матрицы: row = ряд, column = колонка
  */
@@ -100,12 +99,6 @@ class MatrixImpl<E> : Matrix<E> {
         this.width = matrix[0].size
     }
 
-    constructor(other: MatrixImpl<E>) {
-        this.matrix.addAll(other.matrix)
-        this.height = other.height
-        this.width = other.width
-    }
-
     override val height: Int
 
     override val width: Int
@@ -150,6 +143,15 @@ class MatrixImpl<E> : Matrix<E> {
         this[second] = tmp
     }
 
+    fun find(value: E): Cell {
+        for (i in 0 until this.height)
+            for (j in 0 until this.width)
+                if (this[i, j] == value)
+                    return Cell(i, j)
+
+        throw IllegalArgumentException("\"$value\" is not found")
+    }
+
     override fun hashCode(): Int {
         var result = matrix.hashCode()
         result = 31 * result + height
@@ -157,4 +159,5 @@ class MatrixImpl<E> : Matrix<E> {
         return result
     }
 }
+
 

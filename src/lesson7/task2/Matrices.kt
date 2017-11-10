@@ -119,21 +119,20 @@ fun generateRectangles(height: Int, width: Int): Matrix<Int> {
     val matrix = createMatrix(height, width, 1)
     var numb = 2
 
-    while (numb < height && numb < width) {
+    while (numb < Math.max(height, width) - 1) {
+        for (y in numb - 1..height - numb) {
+            matrix[y, numb - 1] = numb
+            matrix[y, width - numb] = numb
+        }
+
         for (x in numb - 1..width - numb) {
             matrix[numb - 1, x] = numb
             matrix[height - numb, x] = numb
-        }
-
-       for (y in numb - 1..height - numb) {
-            matrix[y, numb - 1] = numb
-            matrix[y, width - numb] = numb
         }
         numb++
     }
     return matrix
 }
-
 
 /**
  * Сложная
@@ -212,14 +211,14 @@ fun isLatinSquare(matrix: Matrix<Int>): Boolean {
     if (matrix.height != matrix.width)
         return false
 
-    val matrixList = MatrixImpl(matrix)
+    val matrixList = MatrixImpl(matrix).toList()
 
-    for (line in matrixList.toList())
+    for (line in matrixList)
         for (i in 1..matrix.height)
             if (!line.contains(i))
                 return false
 
-    val transMatrixList = MatrixImpl(transpose(matrix))
+    val transMatrixList = transpose(matrix) as MatrixImpl
 
     for (line in transMatrixList.toList())
         for (i in 1..matrix.height)
@@ -244,7 +243,7 @@ fun surroundingList(matrix: Matrix<Int>, y: Int, x: Int): List<Int> {
         list.add(matrix[y, x - 1])
 
     if (surMatrix.contains(y, x + 1))
-    list.add(matrix[y, x + 1])
+        list.add(matrix[y, x + 1])
 
     return list
 }
@@ -296,18 +295,14 @@ fun findHoles(matrix: Matrix<Int>): Holes {
     val columns = mutableListOf<Int>()
 
     val matrixList = MatrixImpl(matrix).toList()
-    var index = 0
-    for (line in matrixList) {
-        if (!line.contains(1)) rows.add(index)
-        index++
-    }
 
-    val transMatrixList = MatrixImpl(transpose(matrix)).toList()
-    index = 0
-    for (line in transMatrixList) {
+    for ((index, line) in matrixList.withIndex())
+        if (!line.contains(1)) rows.add(index)
+
+    val transMatrixList = (transpose(matrix) as MatrixImpl).toList()
+
+    for ((index, line) in transMatrixList.withIndex())
         if (!line.contains(1)) columns.add(index)
-        index++
-    }
 
     return Holes(rows, columns)
 }
@@ -390,6 +385,8 @@ fun canOpenLock(key: Matrix<Int>, lock: Matrix<Int>): Triple<Boolean, Int, Int> 
     return Triple(false, 0, 0)
 }
 
+
+
 /**
  * Простая
  *
@@ -459,7 +456,7 @@ fun fifteenGameMoves(matrix: Matrix<Int>, moves: List<Int>): Matrix<Int> {
     if (!fifteenCheck(resMatrix))
         throw IllegalStateException("")
 
-    var zero = fifteenFindCell(matrix, 0)
+    var zero = resMatrix.find(0)
 
     for (move in moves) {
         when(fifteenMove(resMatrix, zero, move)) {
@@ -508,16 +505,6 @@ fun fifteenMove(matrix: MatrixImpl<Int>, height: Int, width: Int, move: Int): In
 }
 
 fun fifteenMove(matrix: MatrixImpl<Int>, cell: Cell, move: Int) = fifteenMove(matrix, cell.row, cell.column, move)
-
-fun fifteenFindCell(matrix: Matrix<Int>, value: Int): Cell {
-    for (i in 0 until matrix.height)
-        for (j in 0 until matrix.width)
-            if (matrix[i, j] == value)
-                return  Cell(i, j)
-
-    throw IllegalStateException("Zero is not found")
-}
-
 
 
  /**

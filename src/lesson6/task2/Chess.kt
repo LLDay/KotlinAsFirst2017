@@ -269,9 +269,6 @@ fun knightMoveList(place: Square) : List<Square> {
     return list.filter { it.inside() }
 }
 
-fun lineDistance(start: Square, end: Square) =
-        Math.abs(start.column - end.column) + Math.abs(start.row - end.row)
-
 
 /**
  * Очень сложная
@@ -304,17 +301,16 @@ fun knightTrajectory(start: Square, end: Square, step: Int, maxStep: Int) : List
     if (step > maxStep || start == end)
         return listOf(start)
 
-    if (knightMoveList(start).contains(end))
+    val minList = knightMoveList(start).sortedBy{ kingMoveNumber(start, end) }
+
+    if (minList.contains(end))
         return listOf(start, end)
 
-    val minList = knightMoveList(start).sortedBy { lineDistance(it, end) }
-
     val result = mutableListOf<Square>()
-    var minCount = Int.MAX_VALUE
-
+    var minCount = 1000
 
     for (el in minList) {
-        val listTmp = knightTrajectory(el, end, step + 1, Math.min(minCount, maxStep))
+        val listTmp = knightTrajectory(el, end, step + 1, Math.min(minCount + step, maxStep))
         if (minCount > listTmp.size) {
             result.clear()
             result.add(start)
