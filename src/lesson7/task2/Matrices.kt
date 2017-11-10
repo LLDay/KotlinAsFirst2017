@@ -3,6 +3,7 @@ package lesson7.task2
 
 import lesson7.task1.Cell
 import lesson7.task1.Matrix
+import lesson7.task1.MatrixImpl
 import lesson7.task1.createMatrix
 
 // Все задачи в этом файле требуют наличия реализации интерфейса "Матрица" в Matrix.kt
@@ -198,7 +199,7 @@ fun <E> rotate(matrix: Matrix<E>): Matrix<E> {
  * Сложная
  *
  * Проверить, является ли квадратная целочисленная матрица matrix латинским квадратом.
- * Латинским квадратом называется матрица размером n x n,
+ * Латинским квадратом называется матрица размероn x n,
  * каждая строка и каждый столбец которой содержат все числа от 1 до n.
  * Если height != width, вернуть false.
  *
@@ -211,16 +212,16 @@ fun isLatinSquare(matrix: Matrix<Int>): Boolean {
     if (matrix.height != matrix.width)
         return false
 
-    val matrixList = matrix.toList()
+    val matrixList = MatrixImpl(matrix)
 
-    for (line in matrixList)
+    for (line in matrixList.toList())
         for (i in 1..matrix.height)
             if (!line.contains(i))
                 return false
 
-    val transMatrixList = transpose(matrix).toList()
+    val transMatrixList = MatrixImpl(transpose(matrix))
 
-    for (line in transMatrixList)
+    for (line in transMatrixList.toList())
         for (i in 1..matrix.height)
             if (!line.contains(i))
                 return false
@@ -229,19 +230,20 @@ fun isLatinSquare(matrix: Matrix<Int>): Boolean {
 }
 
 fun surroundingList(matrix: Matrix<Int>, y: Int, x: Int): List<Int> {
+    val surMatrix = MatrixImpl(matrix)
     val list = mutableListOf<Int>()
     for (i in x - 1..x + 1) {
-        if (matrix.contains(y + 1, i))
+        if (surMatrix.contains(y + 1, i))
             list.add(matrix[y + 1, i])
 
-        if (matrix.contains(y - 1, i))
+        if (surMatrix.contains(y - 1, i))
             list.add(matrix[y - 1, i])
     }
 
-    if (matrix.contains(y, x - 1))
+    if (surMatrix.contains(y, x - 1))
         list.add(matrix[y, x - 1])
 
-    if (matrix.contains(y, x + 1))
+    if (surMatrix.contains(y, x + 1))
     list.add(matrix[y, x + 1])
 
     return list
@@ -293,14 +295,14 @@ fun findHoles(matrix: Matrix<Int>): Holes {
     val rows = mutableListOf<Int>()
     val columns = mutableListOf<Int>()
 
-    val matrixList = matrix.toList()
+    val matrixList = MatrixImpl(matrix).toList()
     var index = 0
     for (line in matrixList) {
         if (!line.contains(1)) rows.add(index)
         index++
     }
 
-    val transMatrixList = transpose(matrix).toList()
+    val transMatrixList = MatrixImpl(transpose(matrix)).toList()
     index = 0
     for (line in transMatrixList) {
         if (!line.contains(1)) columns.add(index)
@@ -316,7 +318,7 @@ fun findHoles(matrix: Matrix<Int>): Holes {
 data class Holes(val rows: List<Int>, val columns: List<Int>)
 
 fun subMatrixUpList(matrix: Matrix<Int>, row: Int, column: Int): List<Int> {
-    if (!matrix.contains(row, column))
+    if (!MatrixImpl(matrix).contains(row, column))
         throw IllegalArgumentException("Invalid cell: row = $row, column = $column")
 
     val list = mutableListOf<Int>()
@@ -343,7 +345,7 @@ fun subMatrixUpList(matrix: Matrix<Int>, row: Int, column: Int): List<Int> {
  * К примеру, центральный элемент 12 = 1 + 2 + 4 + 5, элемент в левом нижнем углу 12 = 1 + 4 + 7 и так далее.
  */
 fun sumSubMatrix(matrix: Matrix<Int>): Matrix<Int> {
-    val subMatrix = createMatrix(matrix.toList())
+    val subMatrix = MatrixImpl(matrix)
 
     for (i in 0 until matrix.height)
         for (j in 0 until matrix.width)
@@ -395,7 +397,7 @@ fun canOpenLock(key: Matrix<Int>, lock: Matrix<Int>): Triple<Boolean, Int, Int> 
  * При инвертировании знак каждого элемента матрицы следует заменить на обратный
  */
 operator fun Matrix<Int>.unaryMinus(): Matrix<Int> {
-    val matrix = createMatrix(this.toList())
+    val matrix = MatrixImpl(this)
     for (i in 0 until this.height)
         for (j in 0 until this.width)
             matrix[i, j] = -this[i, j]
@@ -452,43 +454,12 @@ operator fun Matrix<Int>.times(other: Matrix<Int>): Matrix<Int> {
  * 0  4 13  6
  * 3 10 11  8
  */
-fun fifteenCheck(matrix: Matrix<Int>): Boolean {
-    val matrixList = matrix.toList()
-    val matrixSet = mutableSetOf<Int>()
-
-    for (line in matrixList)
-        for (el in line) {
-            if (el !in 0..15)
-                return false
-            matrixSet.add(el)
-        }
-
-    return matrixSet.size == 16
-}
-
-fun fifteenMove(matrix: Matrix<Int>, height: Int, width: Int, move: Int): Int = when {
-    matrix.contains(height - 1, width) && matrix[height - 1, width] == move -> 0 //Up
-    matrix.contains(height + 1, width) && matrix[height + 1, width] == move -> 1 //Down
-    matrix.contains(height, width + 1) && matrix[height, width + 1] == move -> 2 //Right
-    matrix.contains(height, width - 1) && matrix[height, width - 1] == move -> 3 //Left
-    else -> throw IllegalStateException("")
-}
-
-fun fifteenMove(matrix: Matrix<Int>, cell: Cell, move: Int) = fifteenMove(matrix, cell.row, cell.column, move)
-
 fun fifteenGameMoves(matrix: Matrix<Int>, moves: List<Int>): Matrix<Int> {
-    if (!fifteenCheck(matrix))
+    val resMatrix = MatrixImpl(matrix)
+    if (!fifteenCheck(resMatrix))
         throw IllegalStateException("")
 
-    var zero = Cell(-1, -1)
-    val resMatrix = createMatrix(matrix.toList())
-
-    for (i in 0 until matrix.height)
-        for (j in 0 until matrix.width)
-            if (matrix[i, j] == 0) {
-                zero = Cell(i, j)
-                break
-                }
+    var zero = fifteenFindCell(matrix, 0)
 
     for (move in moves) {
         when(fifteenMove(resMatrix, zero, move)) {
@@ -513,6 +484,41 @@ fun fifteenGameMoves(matrix: Matrix<Int>, moves: List<Int>): Matrix<Int> {
 
     return resMatrix
 }
+
+fun fifteenCheck(matrix: MatrixImpl<Int>): Boolean {
+    val matrixList = matrix.toList()
+    val matrixSet = mutableSetOf<Int>()
+
+    for (line in matrixList)
+        for (el in line) {
+            if (el !in 0..15)
+                return false
+            matrixSet.add(el)
+        }
+
+    return matrixSet.size == 16
+}
+
+fun fifteenMove(matrix: MatrixImpl<Int>, height: Int, width: Int, move: Int): Int = when {
+    matrix.contains(height - 1, width) && matrix[height - 1, width] == move -> 0 //Up
+    matrix.contains(height + 1, width) && matrix[height + 1, width] == move -> 1 //Down
+    matrix.contains(height, width + 1) && matrix[height, width + 1] == move -> 2 //Right
+    matrix.contains(height, width - 1) && matrix[height, width - 1] == move -> 3 //Left
+    else -> throw IllegalStateException("")
+}
+
+fun fifteenMove(matrix: MatrixImpl<Int>, cell: Cell, move: Int) = fifteenMove(matrix, cell.row, cell.column, move)
+
+fun fifteenFindCell(matrix: Matrix<Int>, value: Int): Cell {
+    for (i in 0 until matrix.height)
+        for (j in 0 until matrix.width)
+            if (matrix[i, j] == value)
+                return  Cell(i, j)
+
+    throw IllegalStateException("Zero is not found")
+}
+
+
 
  /**
  * В матрице matrix размером 4х4 дана исходная позиция для игры в 15, например
@@ -551,4 +557,101 @@ fun fifteenGameMoves(matrix: Matrix<Int>, moves: List<Int>): Matrix<Int> {
  *
  * Перед решением этой задачи НЕОБХОДИМО решить предыдущую
  */
+
+/* В стадии...
+ class FifteenGame(val matrix: MatrixImpl<Int>) {
+     var hole = fifteenFindCell(matrix, 0)
+     val moveList = mutableListOf<Cell>()
+     init {
+         if (!fifteenCheck(matrix))
+             throw IllegalStateException("Invalid Table")
+     }
+
+     enum class Moves {
+         UP,
+         DOWN,
+         RIGHT,
+         LEFT
+     }
+
+     fun goTo(value: Int) {
+         if (value == 0)
+             return
+
+         val endCell = fifteenFindCell(matrix, value)
+
+         if (hole.row < endCell.row && hole.column == hole.column) {
+             if (hole.column < 3) moveTo(Moves.RIGHT)
+             else moveTo(Moves.LEFT)
+         }
+
+         while(hole.row < endCell.row && hole.row != 3)
+             moveTo(Moves.DOWN)
+
+         while(hole.column != endCell.column)
+
+     }
+
+     fun moveTo(move: Moves) {
+             when(move) {
+                 Moves.UP -> {
+                     if (!matrix.contains(hole.up()))
+                         throw IllegalArgumentException("Wrong move to UP from Cell: $hole")
+
+                     hole = hole.up()
+                 }
+
+                 Moves.DOWN -> {
+                     if (!matrix.contains(hole.down()))
+                         throw IllegalArgumentException("Wrong move to DOWN from Cell: $hole")
+
+                     hole = hole.down()
+                 }
+
+                 Moves.RIGHT -> {
+                     if (!matrix.contains(hole.right()))
+                         throw IllegalArgumentException("Wrong move to RIGHT from Cell: $hole")
+
+                     hole = hole.right()
+                 }
+
+                 Moves.LEFT -> {
+                     if (!matrix.contains(hole.left()))
+                         throw IllegalArgumentException("Wrong move to LEFT from Cell: $hole")
+
+                     hole = hole.left()
+                 }
+             }
+
+         moveList.add(hole)
+         }
+
+
+
+
+     fun isReady(): Boolean {
+         var numb = 1
+
+         for (i in 0 until matrix.height)
+             for (j in 0 until matrix.width)
+                 if (matrix[i, j] != numb++)
+                     return false
+
+         return true
+     }
+
+     fun isReady(height: Int): Boolean {
+         if (height !in 0..3)
+             throw IllegalArgumentException("Wrong height: $height")
+
+         var numb = 4 * height
+
+         for (j in 0 until matrix.width)
+             if (matrix[height, j] != numb++)
+                 return false
+
+         return true
+     }
+ }*/
+
 fun fifteenGameSolution(matrix: Matrix<Int>): List<Int> = TODO()

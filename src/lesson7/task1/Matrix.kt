@@ -36,13 +36,6 @@ interface Matrix<E> {
      */
     operator fun set(row: Int, column: Int, value: E)
     operator fun set(cell: Cell, value: E)
-
-    fun toList(): List<List<E>>
-
-    fun contains(row: Int, column: Int): Boolean
-    fun contains(cell: Cell): Boolean
-
-    fun swap(first: Cell, second: Cell)
 }
 
 /**
@@ -54,29 +47,6 @@ interface Matrix<E> {
  */
 fun <E> createMatrix(height: Int, width: Int, e: E): Matrix<E> = MatrixImpl(height, width, e)
 
-fun <E> createMatrix(height: Int, width: Int, e: List<List<E>>) : Matrix<E> {
-    if (e.isEmpty() || e[0].isEmpty())
-        throw IllegalArgumentException("Empty Matrix")
-
-    if (height != e.size || width != e[0].size)
-        throw IllegalArgumentException("incomplete list of arguments")
-
-    val matrix = MatrixImpl(height, width, e[0][0])
-
-    for (i in 0..e.lastIndex)
-        for (j in 0..e[i].lastIndex)
-            matrix[i, j] = e[i][j]
-
-    return matrix
-}
-
-fun <E> createMatrix(e: List<List<E>>) : Matrix<E> {
-    if (e.isEmpty() || e[0].isEmpty())
-        throw IllegalArgumentException("Empty Matrix")
-
-    return createMatrix(e.size, e[0].size, e)
-}
-
 
 /**
  * Средняя сложность
@@ -84,23 +54,61 @@ fun <E> createMatrix(e: List<List<E>>) : Matrix<E> {
  * Реализация интерфейса "матрица"
  */
 
-class MatrixImpl<E> (height: Int, width: Int, elem: E) : Matrix<E> {
-    private val matrix = mutableListOf< MutableList<E> >()
-    init {
+class MatrixImpl<E> : Matrix<E> {
+    private val matrix = mutableListOf<MutableList<E>>()
+
+    constructor(height: Int, width: Int, e: E) {
         if (height <= 0 || width <= 0)
             throw IllegalArgumentException("")
 
         for (i in 0 until height) {
             val column = mutableListOf<E>()
             for (j in 0 until width)
-                column.add(elem)
+                column.add(e)
             this.matrix.add(column)
         }
+
+        this.height = matrix.size
+        this.width = matrix[0].size
     }
 
-    override val height: Int = matrix.size
+    constructor(e: List<List<E>>) {
+        if (e.isEmpty() || e[0].isEmpty())
+            throw IllegalArgumentException("Empty Matrix")
 
-    override val width: Int = matrix[0].size
+        for (i in 0..e.lastIndex) {
+            val line = mutableListOf<E>()
+            for (j in 0..e[i].lastIndex)
+                line.add(e[i][j])
+
+            matrix.add(line)
+        }
+
+        this.height = matrix.size
+        this.width = matrix[0].size
+    }
+
+    constructor(other: Matrix<E>) {
+        for (i in 0 until other.height) {
+            val line = mutableListOf<E>()
+            for (j in 0 until other.width)
+                line.add(other[i, j])
+
+            matrix.add(line)
+        }
+        this.height = matrix.size
+        this.width = matrix[0].size
+    }
+
+    constructor(other: MatrixImpl<E>) {
+        this.matrix.addAll(other.matrix)
+        this.height = other.height
+        this.width = other.width
+    }
+
+    override val height: Int
+
+    override val width: Int
 
     override fun get(row: Int, column: Int): E = matrix[row][column]
 
@@ -111,7 +119,6 @@ class MatrixImpl<E> (height: Int, width: Int, elem: E) : Matrix<E> {
     }
 
     override fun set(cell: Cell, value: E) = set(cell.row, cell.column, value)
-
 
     override fun equals(other: Any?) = other is MatrixImpl<*> && other.matrix == this.matrix
 
@@ -128,13 +135,16 @@ class MatrixImpl<E> (height: Int, width: Int, elem: E) : Matrix<E> {
         return str.toString()
     }
 
-    override fun toList(): List<List<E>> = matrix
 
-    override fun contains(row: Int, column: Int): Boolean = row in 0 until height && column in 0 until width
+    fun clone() = MatrixImpl(this)
 
-    override fun contains(cell: Cell): Boolean = contains(cell.row, cell.column)
+    fun toList(): List<List<E>> = matrix
 
-    override fun swap(first: Cell, second: Cell) {
+    fun contains(row: Int, column: Int): Boolean = row in 0 until height && column in 0 until width
+
+    fun contains(cell: Cell): Boolean = contains(cell.row, cell.column)
+
+    fun swap(first: Cell, second: Cell) {
         val tmp = this[first]
         this[first] = this[second]
         this[second] = tmp
