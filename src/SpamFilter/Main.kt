@@ -7,13 +7,13 @@ class User(val name: String) {
 fun toTime(time: String): Int {
     val elemTime = time.split(":")
     val hours = elemTime[0].toInt()
-    val minuts = elemTime[1].toInt()
+    val minutes = elemTime[1].toInt()
 
     if (hours !in 0..23)
         throw IllegalStateException("Wrong hour: $hours")
 
-    if (minuts !in 0..59)
-        throw IllegalStateException("Wrong minuts: $minuts")
+    if (minutes !in 0..59)
+        throw IllegalStateException("Wrong minuts: $minutes")
 
     return elemTime[0].toInt() * 60 + elemTime[1].toInt()
 }
