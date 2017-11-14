@@ -1,4 +1,4 @@
-package SpamFilter
+package spamFilter
 
 class User(val name: String) {
     val timeList = mutableListOf<Int>()
@@ -38,7 +38,7 @@ fun textSplitter(text: String): List<String> {
     return words
 }
 
-fun myFun(text: String): List<String> {
+fun spamList(text: String): List<String> {
     val words = textSplitter(text)
     val users = mutableSetOf<User>()
 
