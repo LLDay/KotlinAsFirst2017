@@ -9,21 +9,66 @@ class Tests {
     fun myFun() {
         try {
             spamList("")
-            spamList("Nick")
+            assert(false)
+        }
+        catch(e: IllegalArgumentException) { assert(true) }
+        catch(e: Throwable) { assert(false) }
+
+        try {
+            spamList("Nick 10: 10")
+            assert(false)
+        }
+        catch(e: IllegalArgumentException) { assert(true) }
+        catch(e: Throwable) { assert(false) }
+
+        try {
             spamList("10:10")
+            assert(false)
+        }
+        catch(e: IllegalArgumentException) { assert(true) }
+        catch(e: Throwable) { assert(false) }
+
+        try {
             spamList("Nick 10:3")
+            assert(false)
+        }
+        catch(e: IllegalArgumentException) { assert(true) }
+        catch(e: Throwable) { assert(false) }
+
+        try {
             spamList("N.ick 10:10")
+            assert(false)
+        }
+        catch(e: IllegalArgumentException) { assert(true) }
+        catch(e: Throwable) { assert(false) }
+
+        try {
             spamList("Nick 27:10")
+            assert(false)
+        }
+        catch(e: IllegalArgumentException) { assert(true) }
+        catch(e: Throwable) { assert(false) }
+
+        try {
             spamList("Nick 23:60")
+            assert(false)
+        }
+        catch(e: IllegalArgumentException) { assert(true) }
+        catch(e: Throwable) { assert(false) }
+
+        try {
             spamList("Nick\n10:10")
+            assert(false)
+        }
+        catch(e: IllegalArgumentException) { assert(true) }
+        catch(e: Throwable) { assert(false) }
+
+        try {
             spamList("Nick1 10:10 Nick2 20:20")
+            assert(false)
         }
-        catch(e: IllegalArgumentException) {
-            assert(true)
-        }
-        catch(e: Throwable) {
-            assert(false) {e.message.toString()}
-        }
+        catch(e: IllegalArgumentException) { assert(true) }
+        catch(e: Throwable) { assert(false) }
 
         assertEquals( spamList("Nick 11:11"), listOf<String>())
         assertEquals( spamList("Nick 3:05"), listOf<String>())
