@@ -10,12 +10,12 @@ fun toTime(time: String): Int {
     val minutes = elemTime[1].toInt()
 
     if (hours !in 0..23)
-        throw IllegalStateException("Wrong hour: $hours")
+        throw IllegalArgumentException("Wrong hour: $hours")
 
     if (minutes !in 0..59)
-        throw IllegalStateException("Wrong minutes: $minutes")
+        throw IllegalArgumentException("Wrong minutes: $minutes")
 
-    return elemTime[0].toInt() * 60 + elemTime[1].toInt()
+    return hours * 60 + minutes
 }
 
 fun textSplitter(text: String): List<String> {
@@ -24,15 +24,15 @@ fun textSplitter(text: String): List<String> {
 
     val line = Regex("""[\d\w]+ \d{1,2}:\d{2}""")
     if (!text.matches(Regex("""($line\n)*$line""")))
-        throw IllegalStateException("Wrong input format")
+        throw IllegalArgumentException("Wrong input format")
 
     val words = text.split(Regex("""[ \n]"""))
     for (i in 0 until words.size step 2) {
         if (!words[i].matches(Regex("""[\w\d]+""")))
-            throw IllegalStateException("Wrong format name:${words[i]}!")
+            throw IllegalArgumentException("Wrong format name:${words[i]}!")
 
         if (!words[i + 1].matches(Regex("""\d{1,2}:\d{2}""")))
-            throw IllegalStateException("Wrong format time:${words[i + 1]}!")
+            throw IllegalArgumentException("Wrong format time:${words[i + 1]}!")
     }
 
     return words
