@@ -13,7 +13,7 @@ fun toTime(time: String): Int {
         throw IllegalStateException("Wrong hour: $hours")
 
     if (minutes !in 0..59)
-        throw IllegalStateException("Wrong minuts: $minutes")
+        throw IllegalStateException("Wrong minutes: $minutes")
 
     return elemTime[0].toInt() * 60 + elemTime[1].toInt()
 }
