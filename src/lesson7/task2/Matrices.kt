@@ -385,7 +385,11 @@ fun canOpenLock(key: Matrix<Int>, lock: Matrix<Int>): Triple<Boolean, Int, Int> 
     return Triple(false, 0, 0)
 }
 
-
+fun main(args: Array<String>) {
+    val matrixKey = MatrixImpl(listOf(listOf(1), listOf(0), listOf(0), listOf(1), listOf(1), listOf(1)))
+    val matrixLock = MatrixImpl(listOf(listOf(0), listOf(1), listOf(1), listOf(0), listOf(0), listOf(0), listOf(0), listOf(0), listOf(0)))
+    println(canOpenLock(matrixKey, matrixLock))
+}
 
 /**
  * Простая
