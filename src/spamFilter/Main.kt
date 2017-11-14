@@ -26,16 +26,7 @@ fun textSplitter(text: String): List<String> {
     if (!text.matches(Regex("""($line\n)*$line""")))
         throw IllegalArgumentException("Wrong input format")
 
-    val words = text.split(Regex("""[ \n]"""))
-    for (i in 0 until words.size step 2) {
-        if (!words[i].matches(Regex("""[\w\d]+""")))
-            throw IllegalArgumentException("Wrong format name:${words[i]}!")
-
-        if (!words[i + 1].matches(Regex("""\d{1,2}:\d{2}""")))
-            throw IllegalArgumentException("Wrong format time:${words[i + 1]}!")
-    }
-
-    return words
+    return text.split(Regex("""[ \n]"""))
 }
 
 fun spamList(text: String): List<String> {

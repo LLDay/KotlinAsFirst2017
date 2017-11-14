@@ -119,7 +119,7 @@ fun generateRectangles(height: Int, width: Int): Matrix<Int> {
     val matrix = createMatrix(height, width, 1)
     var numb = 2
 
-    while (numb < Math.max(height, width) - 1) {
+    while (numb < Math.min(height, width)) {
         for (y in numb - 1..height - numb) {
             matrix[y, numb - 1] = numb
             matrix[y, width - numb] = numb
@@ -312,19 +312,6 @@ fun findHoles(matrix: Matrix<Int>): Holes {
  */
 data class Holes(val rows: List<Int>, val columns: List<Int>)
 
-fun subMatrixUpList(matrix: Matrix<Int>, row: Int, column: Int): List<Int> {
-    if (!MatrixImpl(matrix).contains(row, column))
-        throw IllegalArgumentException("Invalid cell: row = $row, column = $column")
-
-    val list = mutableListOf<Int>()
-
-    for (i in 0..row)
-        for (j in 0..column)
-            list.add(matrix[i, j])
-
-    return list
-}
-
 /**
  * Средняя
  *
@@ -343,8 +330,16 @@ fun sumSubMatrix(matrix: Matrix<Int>): Matrix<Int> {
     val subMatrix = MatrixImpl(matrix)
 
     for (i in 0 until matrix.height)
-        for (j in 0 until matrix.width)
-            subMatrix[i, j] = subMatrixUpList(matrix, i, j).sum()
+        for (j in 0 until matrix.width) {
+
+            var sum = 0
+            for (v in 0..i)
+                for (h in 0..j)
+                    sum += matrix[v, h]
+
+            subMatrix[i, j] = sum
+        }
+
     return subMatrix
 }
 
@@ -386,9 +381,15 @@ fun canOpenLock(key: Matrix<Int>, lock: Matrix<Int>): Triple<Boolean, Int, Int> 
 }
 
 fun main(args: Array<String>) {
-    val matrixKey = MatrixImpl(listOf(listOf(1), listOf(0), listOf(0), listOf(1), listOf(1), listOf(1)))
-    val matrixLock = MatrixImpl(listOf(listOf(0), listOf(1), listOf(1), listOf(0), listOf(0), listOf(0), listOf(0), listOf(0), listOf(0)))
-    println(canOpenLock(matrixKey, matrixLock))
+    val key = MatrixImpl(listOf(listOf(1, 0)))
+    val lock = MatrixImpl(listOf(listOf(0, 1), listOf(0, 0), listOf(1, 0), listOf(0, 0), listOf(1, 0), listOf(1, 1), listOf(1, 1), listOf(1, 0), listOf(0, 0)))
+
+    canOpenLock(key, lock)
+    //Output here:      Triple(true,  0, 0)
+    //Output in Kotoed: Triple(false, 0, 0)
+    //How??
+
+    println(generateRectangles(4, 3))
 }
 
 /**
@@ -487,17 +488,13 @@ fun fifteenGameMoves(matrix: Matrix<Int>, moves: List<Int>): Matrix<Int> {
 }
 
 fun fifteenCheck(matrix: MatrixImpl<Int>): Boolean {
-    val matrixList = matrix.toList()
     val matrixSet = mutableSetOf<Int>()
 
-    for (line in matrixList)
-        for (el in line) {
-            if (el !in 0..15)
-                return false
+    for (line in matrix.toList())
+        for (el in line)
             matrixSet.add(el)
-        }
 
-    return matrixSet.size == 16
+    return matrixSet.size == 16 && matrixSet.max() == 15 && matrixSet.min() == 0
 }
 
 fun fifteenMove(matrix: MatrixImpl<Int>, height: Int, width: Int, move: Int): Int = when {
@@ -548,101 +545,5 @@ fun fifteenMove(matrix: MatrixImpl<Int>, cell: Cell, move: Int) = fifteenMove(ma
  *
  * Перед решением этой задачи НЕОБХОДИМО решить предыдущую
  */
-
-/* В стадии...
- class FifteenGame(val matrix: MatrixImpl<Int>) {
-     var hole = fifteenFindCell(matrix, 0)
-     val moveList = mutableListOf<Cell>()
-     init {
-         if (!fifteenCheck(matrix))
-             throw IllegalStateException("Invalid Table")
-     }
-
-     enum class Moves {
-         UP,
-         DOWN,
-         RIGHT,
-         LEFT
-     }
-
-     fun goTo(value: Int) {
-         if (value == 0)
-             return
-
-         val endCell = fifteenFindCell(matrix, value)
-
-         if (hole.row < endCell.row && hole.column == hole.column) {
-             if (hole.column < 3) moveTo(Moves.RIGHT)
-             else moveTo(Moves.LEFT)
-         }
-
-         while(hole.row < endCell.row && hole.row != 3)
-             moveTo(Moves.DOWN)
-
-         while(hole.column != endCell.column)
-
-     }
-
-     fun moveTo(move: Moves) {
-             when(move) {
-                 Moves.UP -> {
-                     if (!matrix.contains(hole.up()))
-                         throw IllegalArgumentException("Wrong move to UP from Cell: $hole")
-
-                     hole = hole.up()
-                 }
-
-                 Moves.DOWN -> {
-                     if (!matrix.contains(hole.down()))
-                         throw IllegalArgumentException("Wrong move to DOWN from Cell: $hole")
-
-                     hole = hole.down()
-                 }
-
-                 Moves.RIGHT -> {
-                     if (!matrix.contains(hole.right()))
-                         throw IllegalArgumentException("Wrong move to RIGHT from Cell: $hole")
-
-                     hole = hole.right()
-                 }
-
-                 Moves.LEFT -> {
-                     if (!matrix.contains(hole.left()))
-                         throw IllegalArgumentException("Wrong move to LEFT from Cell: $hole")
-
-                     hole = hole.left()
-                 }
-             }
-
-         moveList.add(hole)
-         }
-
-
-
-
-     fun isReady(): Boolean {
-         var numb = 1
-
-         for (i in 0 until matrix.height)
-             for (j in 0 until matrix.width)
-                 if (matrix[i, j] != numb++)
-                     return false
-
-         return true
-     }
-
-     fun isReady(height: Int): Boolean {
-         if (height !in 0..3)
-             throw IllegalArgumentException("Wrong height: $height")
-
-         var numb = 4 * height
-
-         for (j in 0 until matrix.width)
-             if (matrix[height, j] != numb++)
-                 return false
-
-         return true
-     }
- }*/
 
 fun fifteenGameSolution(matrix: Matrix<Int>): List<Int> = TODO()
