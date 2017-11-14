@@ -75,6 +75,8 @@ class Tests {
         assertEquals(spamList("Nick 10:10\nNick 11:10"), listOf<String>())
         assertEquals(spamList("Nick 10:10\nNick 10:11"), listOf("Nick"))
         assertEquals(spamList("Nick1 10:10\nNick2 3:18\nNick1 10:11"), listOf("Nick1"))
-        assertEquals(spamList("Nick1 10:10\nNick2 3:18\nNick3 10:11\nNick2 3:17\nNick1 10:11").toSet(), setOf("Nick1", "Nick2"))
+
+        val spam = spamList("Nick1 10:10\nNick2 3:18\nNick3 10:11\nNick2 3:17\nNick1 10:11")
+        assertTrue(spam.size == 2 && spam.toSet() == setOf("Nick1", "Nick2"))
     }
 }
