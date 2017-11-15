@@ -118,8 +118,9 @@ fun generateSpiral(height: Int, width: Int): Matrix<Int> {
 fun generateRectangles(height: Int, width: Int): Matrix<Int> {
     val matrix = createMatrix(height, width, 1)
     var numb = 2
+    val min = Math.min(height, width)
 
-    while (numb < Math.min(height, width)) {
+    while (numb <= (min / 2) + (min % 2)) {
         for (y in numb - 1..height - numb) {
             matrix[y, numb - 1] = numb
             matrix[y, width - numb] = numb
@@ -389,7 +390,7 @@ fun main(args: Array<String>) {
     //Output in Kotoed: Triple(false, 0, 0)
     //How??
 
-    println(generateRectangles(4, 3))
+    println(generateRectangles(9, 30))
 }
 
 /**
