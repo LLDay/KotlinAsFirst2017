@@ -389,8 +389,6 @@ fun main(args: Array<String>) {
     //Output here:      Triple(true,  0, 0)
     //Output in Kotoed: Triple(false, 0, 0)
     //How??
-
-    println(generateRectangles(9, 30))
 }
 
 /**
