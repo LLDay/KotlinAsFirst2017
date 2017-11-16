@@ -22,11 +22,16 @@ fun textSplitter(text: String): List<String> {
     if (text.isEmpty())
         throw IllegalArgumentException("Empty text")
 
-    val line = Regex("""[\d\w]+ \d{1,2}:\d{2}""")
-    if (!text.matches(Regex("""($line\n)*$line""")))
-        throw IllegalArgumentException("Wrong input format")
+    val lineCheck = Regex("""^[\d\w]+ \d{1,2}:\d{2}$""")
+    val lines = text.split('\n')
+    val words = mutableListOf<String>()
 
-    return text.split(Regex("""[ \n]"""))
+    for (line in lines)
+        if (!line.matches(lineCheck))
+            throw IllegalArgumentException("Wrong input format: \"$line\"")
+        else words.addAll(line.split(' '))
+
+    return words
 }
 
 fun spamList(text: String): List<String> {

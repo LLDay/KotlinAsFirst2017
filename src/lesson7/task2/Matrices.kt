@@ -120,7 +120,7 @@ fun generateRectangles(height: Int, width: Int): Matrix<Int> {
     var numb = 2
     val min = Math.min(height, width)
 
-    while (numb <= (min / 2) + (min % 2)) {
+    while (numb <= Math.round(min / 2.0)) {
         for (y in numb - 1..height - numb) {
             matrix[y, numb - 1] = numb
             matrix[y, width - numb] = numb
@@ -134,6 +134,7 @@ fun generateRectangles(height: Int, width: Int): Matrix<Int> {
     }
     return matrix
 }
+
 
 /**
  * Сложная
@@ -212,19 +213,17 @@ fun isLatinSquare(matrix: Matrix<Int>): Boolean {
     if (matrix.height != matrix.width)
         return false
 
+    val checkSet = (1..matrix.height).toSet()
+
     val matrixList = MatrixImpl(matrix).toList()
-
     for (line in matrixList)
-        for (i in 1..matrix.height)
-            if (!line.contains(i))
-                return false
+        if (line.toSet() != checkSet)
+            return false
 
-    val transMatrixList = transpose(matrix) as MatrixImpl
-
-    for (line in transMatrixList.toList())
-        for (i in 1..matrix.height)
-            if (!line.contains(i))
-                return false
+    val transMatrixList = (transpose(matrix) as MatrixImpl).toList()
+    for (line in transMatrixList)
+        if (line.toSet() != checkSet)
+            return false
 
     return true
 }
@@ -293,17 +292,16 @@ fun sumNeighbours(matrix: Matrix<Int>): Matrix<Int> {
  */
 fun findHoles(matrix: Matrix<Int>): Holes {
     val rows = mutableListOf<Int>()
-    val columns = mutableListOf<Int>()
-
     val matrixList = MatrixImpl(matrix).toList()
-
     for ((index, line) in matrixList.withIndex())
-        if (!line.contains(1)) rows.add(index)
+        if (line.toSet() == setOf(0))
+            rows.add(index)
 
+    val columns = mutableListOf<Int>()
     val transMatrixList = (transpose(matrix) as MatrixImpl).toList()
-
     for ((index, line) in transMatrixList.withIndex())
-        if (!line.contains(1)) columns.add(index)
+        if (line.toSet() == setOf(0))
+            columns.add(index)
 
     return Holes(rows, columns)
 }
@@ -331,19 +329,16 @@ fun sumSubMatrix(matrix: Matrix<Int>): Matrix<Int> {
     val subMatrix = MatrixImpl(matrix)
 
     for (i in 0 until matrix.height)
-        for (j in 0 until matrix.width) {
+        for (j in 1 until matrix.width)
+            subMatrix[i, j] = subMatrix[i, j - 1] + matrix[i, j]
 
-            var sum = 0
-            for (v in 0..i)
-                for (h in 0..j)
-                    sum += matrix[v, h]
 
-            subMatrix[i, j] = sum
-        }
+    for (j in 0 until matrix.width)
+        for (i in 1 until matrix.height)
+            subMatrix[i, j] = subMatrix[i - 1, j] + subMatrix[i, j]
 
     return subMatrix
 }
-
 
 /**
  * Сложная
@@ -379,16 +374,6 @@ fun canOpenLock(key: Matrix<Int>, lock: Matrix<Int>): Triple<Boolean, Int, Int> 
         }
 
     return Triple(false, 0, 0)
-}
-
-fun main(args: Array<String>) {
-    val key = MatrixImpl(listOf(listOf(1, 0)))
-    val lock = MatrixImpl(listOf(listOf(0, 1), listOf(0, 0), listOf(1, 0), listOf(0, 0), listOf(1, 0), listOf(1, 1), listOf(1, 1), listOf(1, 0), listOf(0, 0)))
-
-    canOpenLock(key, lock)
-    //Output here:      Triple(true,  0, 0)
-    //Output in Kotoed: Triple(false, 0, 0)
-    //How??
 }
 
 /**
@@ -487,21 +472,25 @@ fun fifteenGameMoves(matrix: Matrix<Int>, moves: List<Int>): Matrix<Int> {
 }
 
 fun fifteenCheck(matrix: MatrixImpl<Int>): Boolean {
+    if (matrix.height != matrix.width || matrix.height != 4)
+        return false
+
     val matrixSet = mutableSetOf<Int>()
-
     for (line in matrix.toList())
-        for (el in line)
-            matrixSet.add(el)
+            matrixSet.addAll(line)
 
-    return matrixSet.size == 16 && matrixSet.max() == 15 && matrixSet.min() == 0
+    return matrixSet == (0..15).toSet()
 }
 
-fun fifteenMove(matrix: MatrixImpl<Int>, height: Int, width: Int, move: Int): Int = when {
-    matrix.contains(height - 1, width) && matrix[height - 1, width] == move -> 0 //Up
-    matrix.contains(height + 1, width) && matrix[height + 1, width] == move -> 1 //Down
-    matrix.contains(height, width + 1) && matrix[height, width + 1] == move -> 2 //Right
-    matrix.contains(height, width - 1) && matrix[height, width - 1] == move -> 3 //Left
-    else -> throw IllegalStateException("")
+fun fifteenMove(matrix: MatrixImpl<Int>, height: Int, width: Int, move: Int): Int {
+    val cell = Cell(height, width)
+    return when {
+        matrix.contains(cell.up()) && matrix[cell.up()] == move -> 0 //Up
+        matrix.contains(cell.down()) && matrix[cell.down()] == move -> 1 //Down
+        matrix.contains(cell.right()) && matrix[cell.right()] == move -> 2 //Right
+        matrix.contains(cell.left()) && matrix[cell.left()] == move -> 3 //Left
+        else -> throw IllegalStateException("")
+    }
 }
 
 fun fifteenMove(matrix: MatrixImpl<Int>, cell: Cell, move: Int) = fifteenMove(matrix, cell.row, cell.column, move)

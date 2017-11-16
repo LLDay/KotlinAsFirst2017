@@ -67,8 +67,8 @@ class MatrixImpl<E> : Matrix<E> {
             this.matrix.add(column)
         }
 
-        this.height = matrix.size
-        this.width = matrix[0].size
+        this.height = height
+        this.width = width
     }
 
     constructor(e: List<List<E>>) {
@@ -87,17 +87,7 @@ class MatrixImpl<E> : Matrix<E> {
         this.width = matrix[0].size
     }
 
-    constructor(other: Matrix<E>) {
-        for (i in 0 until other.height) {
-            val line = mutableListOf<E>()
-            for (j in 0 until other.width)
-                line.add(other[i, j])
-
-            matrix.add(line)
-        }
-        this.height = matrix.size
-        this.width = matrix[0].size
-    }
+    constructor(other: Matrix<E>) : this((other as MatrixImpl).toList())
 
     override val height: Int
 
@@ -113,7 +103,20 @@ class MatrixImpl<E> : Matrix<E> {
 
     override fun set(cell: Cell, value: E) = set(cell.row, cell.column, value)
 
-    override fun equals(other: Any?) = other is MatrixImpl<*> && other.matrix == this.matrix
+    override fun equals(other: Any?): Boolean {
+        if (other !is Matrix<*>)
+            return false
+
+        if (other.height != this.height || other.width != this.width)
+            return false
+
+        for (i in 0 until this.height)
+            for (j in 0 until this.width)
+                if (this[i, j] != other[i, j])
+                    return false
+
+        return true
+    }
 
     override fun toString(): String {
         val str = StringBuilder("height = ${this.height} width = ${this.width}\n")
@@ -159,5 +162,4 @@ class MatrixImpl<E> : Matrix<E> {
         return result
     }
 }
-
 
