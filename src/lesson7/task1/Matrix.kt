@@ -87,7 +87,17 @@ class MatrixImpl<E> : Matrix<E> {
         this.width = matrix[0].size
     }
 
-    constructor(other: Matrix<E>) : this((other as MatrixImpl).toList())
+    constructor(other: Matrix<E>) {
+        for (i in 0 until other.height) {
+            val line = mutableListOf<E>()
+            for (j in 0 until other.width)
+                line.add(other[i, j])
+
+            matrix.add(line)
+        }
+        this.height = matrix.size
+        this.width = matrix[0].size
+    }
 
     override val height: Int
 
