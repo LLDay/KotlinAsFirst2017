@@ -58,7 +58,7 @@ fun spamList(text: String): List<String> {
         user.timeList.sort()
 
         for (i in 0 until user.timeList.lastIndex) {
-            if (Math.abs(user.timeList[i] - user.timeList[i + 1]) < 2) {
+            if (user.timeList[i + 1] - user.timeList[i] < 2) {
                 spamList.add(user.name)
                 break
             }

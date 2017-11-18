@@ -332,7 +332,6 @@ fun sumSubMatrix(matrix: Matrix<Int>): Matrix<Int> {
         for (j in 1 until matrix.width)
             subMatrix[i, j] = subMatrix[i, j - 1] + matrix[i, j]
 
-
     for (j in 0 until matrix.width)
         for (i in 1 until matrix.height)
             subMatrix[i, j] = subMatrix[i - 1, j] + subMatrix[i, j]
