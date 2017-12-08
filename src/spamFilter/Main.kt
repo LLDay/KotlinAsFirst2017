@@ -52,7 +52,7 @@ fun spamList(text: String): List<String> {
     }
     //!Pushing
 
-    val spamList = mutableSetOf<String>()
+    val spamList = mutableListOf<String>()
 
     for (user in users) {
         user.timeList.sort()
@@ -65,5 +65,5 @@ fun spamList(text: String): List<String> {
         }
     }
 
-    return spamList.toList()
+    return spamList
 }
